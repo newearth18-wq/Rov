@@ -1,6 +1,6 @@
 {
   "name": "rift-arena",
-  "version": "5.0.0",
+  "version": "5.1.0",
   "private": true,
   "description": "Original browser MOBA with six heroes, bots and online rooms",
   "scripts": {
