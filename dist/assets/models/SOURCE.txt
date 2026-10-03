@@ -1,0 +1,3 @@
+Quaternius RPG Character Pack
+https://quaternius.com/packs/rpgcharacters.html
+CC0 (see LICENSE.txt). GLB container converted losslessly from the original embedded glTF.
