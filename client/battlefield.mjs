@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import {surface} from './terrain-surfaces.mjs';
 
-const S=1/50,stone=new THREE.MeshStandardMaterial({map:surface('rock'),color:0xa3ada5,roughness:.92}),trim=new THREE.MeshStandardMaterial({color:0xbda271,metalness:.55,roughness:.42}),dark=new THREE.MeshStandardMaterial({color:0x37433f,roughness:.92});
+const S=1/50,stone=new THREE.MeshStandardMaterial({map:surface('rock'),color:0x9badb4,roughness:.92}),trim=new THREE.MeshStandardMaterial({color:0xbda271,metalness:.55,roughness:.42}),dark=new THREE.MeshStandardMaterial({color:0x37433f,roughness:.92});
 const at=(x,y,h=0)=>new THREE.Vector3(x*S,h,y*S);
 function add(parent,g,m,x=0,y=0,z=0){const n=new THREE.Mesh(g,m);n.position.set(x,y,z);n.castShadow=true;n.receiveShadow=true;parent.add(n);return n;}
 function column(parent,r,h,m,y=0){return add(parent,new THREE.CylinderGeometry(r,r*1.05,h,12),m,0,y,0);}
@@ -29,10 +29,10 @@ function ribbon(scene,points,width,material,height=.02){const curve=new THREE.Ca
 }
 export function buildBattlefield(scene,routes,obstacles,bushes){
   let seed=7249;const rand=()=>{seed=(seed*16807)%2147483647;return(seed-1)/2147483646;};
-  const grassMap=surface('grass'),groundMat=new THREE.MeshStandardMaterial({map:grassMap,color:0xa3ae8c,roughness:1});
+  const grassMap=surface('grass'),groundMat=new THREE.MeshStandardMaterial({map:grassMap,color:0x7baa91,roughness:1});
   const ground=add(scene,new THREE.PlaneGeometry(90,70),groundMat,15,-.03,10);ground.rotation.x=-Math.PI/2;ground.castShadow=false;
-  const dirtMat=new THREE.MeshStandardMaterial({map:surface('dirt'),color:0x9c9e87,roughness:1});
-  const roadMat=new THREE.MeshStandardMaterial({map:surface('stone'),color:0xbdc3b6,roughness:.95,side:THREE.DoubleSide});
+  const dirtMat=new THREE.MeshStandardMaterial({map:surface('dirt'),color:0x7b9c98,roughness:1});
+  const roadMat=new THREE.MeshStandardMaterial({map:surface('stone'),color:0xaabfc4,roughness:.95,side:THREE.DoubleSide});
   for(const route of routes){ribbon(scene,route,.94,dirtMat,.01);ribbon(scene,route,.77,roadMat,.027);}
   const riverPoints=[[620,-200],[740,240],[730,520],[870,760],[950,1200]];
   ribbon(scene,riverPoints,1.32,dirtMat,.017);
@@ -42,12 +42,13 @@ export function buildBattlefield(scene,routes,obstacles,bushes){
   // Camps are separate dirt clearings, with enough room to fight around the guardian.
   for(const [x,y,r]of [[640,330,1.1],[860,670,1.1],[750,500,1.35]]){const camp=add(scene,new THREE.CircleGeometry(r,48),dirtMat,x*S,.025,y*S);camp.rotation.x=-Math.PI/2;camp.castShadow=false;for(let i=0;i<8;i++){const a=i/8*Math.PI*2,rock=add(scene,new THREE.DodecahedronGeometry(.1+rand()*.08,0),stone,x*S+Math.cos(a)*r,.11,y*S+Math.sin(a)*r);rock.scale.y=.6;}}
   for(const o of obstacles){const r=o.radius*S;for(let i=0;i<5;i++){const a=i/5*Math.PI*2,rock=add(scene,new THREE.DodecahedronGeometry(r*.52,1),stone,o.x*S+Math.cos(a)*r*.35,.25+rand()*.08,o.y*S+Math.sin(a)*r*.35);rock.scale.set(1,.65+rand()*.3,.75);rock.rotation.set(rand()*.4,rand()*6,rand()*.2);}const top=add(scene,new THREE.DodecahedronGeometry(r*.54,0),stone,o.x*S,.55,o.y*S);top.scale.set(1,.5,.8);}
+  for(let k=0;k<obstacles.length;k++){const o=obstacles[k],r=o.radius*S;for(let i=0;i<7;i++){const a=(o.x<750?Math.PI:0)+i*.31,b=a+.29,shape=new THREE.Shape();shape.absarc(0,0,r*.88,a,b,false);shape.absarc(0,0,r*.66,b,a,true);shape.closePath();const geometry=new THREE.ExtrudeGeometry(shape,{depth:.47,bevelEnabled:true,bevelSize:.028,bevelThickness:.028,bevelSegments:1,curveSegments:4,steps:1});geometry.rotateX(-Math.PI/2);add(scene,geometry,stone,o.x*S,.025,o.y*S);const cap=geometry.clone();cap.scale(1.05,.12,1.05);add(scene,cap,dark,o.x*S,.49,o.y*S);}}
   // Blade clusters mark the exact hiding areas; decorative foliage stays outside lanes.
-  const bladeGeometry=new THREE.BufferGeometry();bladeGeometry.setAttribute('position',new THREE.Float32BufferAttribute([-.04,0,0,.04,0,0,.022,.30,.035,0,.48,.065],3));bladeGeometry.setIndex([0,1,2,0,2,3]);bladeGeometry.computeVertexNormals();const leafMat=new THREE.MeshStandardMaterial({color:0x648647,roughness:.9,side:THREE.DoubleSide});
-  const blades=new THREE.InstancedMesh(bladeGeometry,leafMat,bushes.length*110),dummy=new THREE.Object3D();let count=0;for(const b of bushes)for(let i=0;i<110;i++){dummy.position.copy(at(b.x+(rand()-.5)*b.w,b.y+(rand()-.5)*b.h,.03));dummy.rotation.set(0,rand()*Math.PI*2,0);dummy.scale.setScalar(.8+rand()*.55);dummy.updateMatrix();blades.setMatrixAt(count,dummy.matrix);blades.setColorAt(count++,new THREE.Color().setHSL(.23+rand()*.05,.28,.26+rand()*.14));}blades.castShadow=true;scene.add(blades);
+  const bladeGeometry=new THREE.BufferGeometry();bladeGeometry.setAttribute('position',new THREE.Float32BufferAttribute([-.04,0,0,.04,0,0,.022,.30,.035,0,.48,.065],3));bladeGeometry.setIndex([0,1,2,0,2,3]);bladeGeometry.computeVertexNormals();const leafMat=new THREE.MeshStandardMaterial({color:0x578a69,roughness:.9,side:THREE.DoubleSide});
+  const blades=new THREE.InstancedMesh(bladeGeometry,leafMat,bushes.length*110),dummy=new THREE.Object3D();let count=0;for(const b of bushes)for(let i=0;i<110;i++){dummy.position.copy(at(b.x+(rand()-.5)*b.w,b.y+(rand()-.5)*b.h,.03));dummy.rotation.set(0,rand()*Math.PI*2,0);dummy.scale.setScalar(.8+rand()*.55);dummy.updateMatrix();blades.setMatrixAt(count,dummy.matrix);blades.setColorAt(count++,new THREE.Color().setHSL(.32+rand()*.04,.3,.26+rand()*.14));}blades.castShadow=true;scene.add(blades);
   const treePoints=[];for(let i=0;i<480;i++){const x=rand()*2100-300,y=rand()*1500-250;if(routeDistance(x,y,routes)<110||Math.hypot(x-120,y-840)<200||Math.hypot(x-1380,y-160)<200||Math.abs(x-(680+y*.16))<95||[[640,330],[860,670],[750,500]].some(p=>Math.hypot(x-p[0],y-p[1])<125)||obstacles.some(o=>Math.hypot(x-o.x,y-o.y)<o.radius+30)||bushes.some(b=>Math.abs(x-b.x)<b.w&&Math.abs(y-b.y)<b.h))continue;treePoints.push({x,y,s:.6+rand()*.45});}
-  const trunks=new THREE.InstancedMesh(new THREE.CylinderGeometry(.055,.13,1.45,7),new THREE.MeshStandardMaterial({color:0x544836,roughness:1}),treePoints.length),crowns=new THREE.InstancedMesh(new THREE.PlaneGeometry(1.4,1.1),new THREE.MeshStandardMaterial({map:surface('foliage'),color:0xb7c29e,alphaTest:.42,roughness:1,side:THREE.DoubleSide}),treePoints.length*4);
-  for(let i=0;i<treePoints.length;i++){const p=treePoints[i];dummy.position.copy(at(p.x,p.y,.73*p.s));dummy.rotation.set(0,p.x,0);dummy.scale.setScalar(p.s);dummy.updateMatrix();trunks.setMatrixAt(i,dummy.matrix);for(let n=0;n<4;n++){const a=n/3*Math.PI*2;dummy.position.copy(at(p.x,p.y,(1.36+n*.1)*p.s));dummy.position.x+=Math.cos(a)*.27*p.s;dummy.position.z+=Math.sin(a)*.27*p.s;dummy.rotation.set(-Math.PI/2+n*.25,a+p.x,rand()*.2);dummy.scale.set(p.s*.9,p.s*.75,p.s*.85);dummy.updateMatrix();crowns.setMatrixAt(i*4+n,dummy.matrix);crowns.setColorAt(i*4+n,new THREE.Color().setHSL(.22+rand()*.04,.06,.72+rand()*.15));}}
+  const trunks=new THREE.InstancedMesh(new THREE.CylinderGeometry(.055,.13,1.45,7),new THREE.MeshStandardMaterial({color:0x544836,roughness:1}),treePoints.length),crowns=new THREE.InstancedMesh(new THREE.PlaneGeometry(1.4,1.1),new THREE.MeshStandardMaterial({map:surface('foliage'),color:0xa8c8b4,alphaTest:.42,roughness:1,side:THREE.DoubleSide}),treePoints.length*4);
+  for(let i=0;i<treePoints.length;i++){const p=treePoints[i];dummy.position.copy(at(p.x,p.y,.73*p.s));dummy.rotation.set(0,p.x,0);dummy.scale.setScalar(p.s);dummy.updateMatrix();trunks.setMatrixAt(i,dummy.matrix);for(let n=0;n<4;n++){const a=n/3*Math.PI*2;dummy.position.copy(at(p.x,p.y,(1.36+n*.1)*p.s));dummy.position.x+=Math.cos(a)*.27*p.s;dummy.position.z+=Math.sin(a)*.27*p.s;dummy.rotation.set(-Math.PI/2+n*.25,a+p.x,rand()*.2);dummy.scale.set(p.s*.9,p.s*.75,p.s*.85);dummy.updateMatrix();crowns.setMatrixAt(i*4+n,dummy.matrix);crowns.setColorAt(i*4+n,new THREE.Color().setHSL(.32+rand()*.04,.12,.72+rand()*.15));}}
   trunks.castShadow=true;crowns.castShadow=true;crowns.receiveShadow=true;scene.add(trunks,crowns);
   return {update:time=>{waterTime.value=time;}};
 }

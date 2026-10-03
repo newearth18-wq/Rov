@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 (async()=>{
   const THREE=await import('three'),{forgeTemplates}=await import('../client/forge-heroes.mjs');
-  const templates=forgeTemplates();assert.equal(templates.size,6);
+  const templates=forgeTemplates();assert.equal(templates.size,16);
   for(const [id,model]of templates){
     assert.ok(model.scene.userData.height>1.6&&model.scene.userData.height<2.4,id+' anatomy bounds');
     const first=model.scene.clone(true),second=model.scene.clone(true),mixer=new THREE.AnimationMixer(first);
@@ -13,5 +13,5 @@ const assert=require('node:assert/strict');
     const foot=new THREE.Box3().setFromObject(second.getObjectByName('LFoot'));assert.ok(Math.abs(foot.min.y-model.scene.userData.ground)<.0001,id+' ground anchor');
     mixer.stopAllAction();mixer.uncacheRoot(first);
   }
-  console.log('Art checks passed: six original meshes, independent animation rigs, finite poses and ground anchors.');
+  console.log('Art checks passed: sixteen character meshes, independent animation rigs, finite poses and ground anchors.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
