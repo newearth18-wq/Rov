@@ -1,0 +1,2 @@
+Original terrain textures generated for Rift Arena v6 using OpenAI imagegen, 2026-10-03. Source atlas: outputs/rift-terrain-atlas-v6.png. Four equal quadrants: grass, cobblestone, slate, forest dirt. Cropped and resized to 512px WebP for game loading.
+Foliage: original transparent oak-leaf cluster generated for this game, resized to 512px WebP with alpha. Source: outputs/rift-foliage-v6.png.
