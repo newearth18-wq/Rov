@@ -1,6 +1,6 @@
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const root=path.join(__dirname,'dist'),port=Number(process.env.PORT)||4173;
-const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png'};
+const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.webp':'image/webp'};
 async function start(){fs.mkdirSync(path.join(__dirname,'.sites-runtime'),{recursive:true});const DB=require('./server/local-db.cjs').createDb(path.join(__dirname,'.sites-runtime/rooms.sqlite'));const worker=(await import('./server/worker.mjs')).default;
 http.createServer(async(req,res)=>{let pathname;try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{res.writeHead(400);res.end('Bad request');return;}
 if(pathname.startsWith('/api/')){try{const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>140000){res.writeHead(413);res.end('{}');return;}chunks.push(chunk);}const request=new Request('http://'+req.headers.host+req.url,{method:req.method,headers:req.headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(chunks)});const response=await worker.fetch(request,{DB},{});res.writeHead(response.status,Object.fromEntries(response.headers));res.end(Buffer.from(await response.arrayBuffer()));}catch(e){console.error(e.message);res.writeHead(500);res.end('{}');}return;}
