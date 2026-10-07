@@ -21,6 +21,7 @@ export const lessonBanks = sqliteTable('lesson_banks', {
 export const classrooms = sqliteTable('classrooms', {
   id: text('id').primaryKey(), teacherId: text('teacher_id').notNull().references(()=>teachers.id),
   title: text('title').notNull(), mode: text('mode').notNull(), lesson: text('lesson').notNull(),
+  activity: text('activity').notNull().default('moba'), energyQuestions: integer('energy_questions').notNull().default(0),
   mission: text('mission').notNull(), phase: text('phase').notNull().default('waiting'),
   paused: integer('paused').notNull().default(0), round: integer('round').notNull().default(0), focus: text('focus'),
   minutes: integer('minutes').notNull().default(8), deadline: integer('deadline'), updatedAt: integer('updated_at').notNull(),
@@ -48,3 +49,15 @@ export const classTeamPlans = sqliteTable('class_team_plans', {
   arena: integer('arena').notNull(), team: integer('team').notNull(), plan: text('plan').notNull(),
   author: text('author').notNull(), revision: integer('revision').notNull().default(1), updatedAt: integer('updated_at').notNull(),
 }, t=>[uniqueIndex('idx_class_team_plan').on(t.classId,t.arena,t.team)]);
+
+export const classPlayProgress = sqliteTable('class_play_progress', {
+  studentId: text('student_id').primaryKey().references(()=>classStudents.id),
+  credits: integer('credits').notNull().default(1000), spent: integer('spent').notNull().default(0),
+  ammo: integer('ammo').notNull().default(3), shots: integer('shots').notNull().default(0),
+  cursor: integer('cursor').notNull().default(0), correct: integer('correct').notNull().default(0),
+  answeredAt: integer('answered_at').notNull().default(0), movedAt: integer('moved_at').notNull().default(0),
+});
+export const classSnowStates = sqliteTable('class_snow_states', {
+  classId: text('class_id').notNull().references(()=>classrooms.id), arena: integer('arena').notNull(),
+  state: text('state').notNull(), revision: integer('revision').notNull().default(0), updatedAt: integer('updated_at').notNull(),
+}, t=>[uniqueIndex('idx_class_snow_arena').on(t.classId,t.arena)]);
