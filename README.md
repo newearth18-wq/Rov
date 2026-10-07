@@ -170,3 +170,10 @@ pnpm db:generate
 - Human hero faces now have a tapered jaw, layered eyes, eyebrows, nose, mouth and hair. Portraits and battlefield characters still share the same model. Humanoid rigs have weapon-specific attacks, distinct skill poses, smoother blends and a leaning dash. Mounted Volkath retains seated legs. These remain original prototype meshes, not official RoV assets.
 - **วิธีเล่น** contains camera distance and combat-button sizes, stored on this device. Target buttons are separated from the skill buttons.
 - Validation: automated 50-student admission/match/control/report runs for both split and mass modes, actual QR pixel decoding for both link types, invalid-link rejection, camera lifecycle tests including pending permission, individual review tests and local browser join flows. Simulations do not establish performance on 50 physical phones; camera scanning must also be tried on the intended classroom devices.
+
+## V13: simpler teacher room creation
+
+- Open **ห้องเรียน 50 คน → ครู · สร้างห้องเรียน**, select a question bank and press **สร้างห้องและแสดง QR**. The room name is optional; time and mission have usable defaults under an expandable section. A successful creation immediately shows the student QR.
+- Teacher and student entry are separate. **แก้ไข / เพิ่มชุดคำถาม** opens the full bank editor, with a direct return to room creation. Existing rooms remain available beside the short form.
+- Teacher loading failures show a retry button and a readable message. Classroom requests use an AbortController timer rather than requiring AbortSignal.timeout; plain bank data also has a structuredClone fallback.
+- Validation: local browser creation with a blank room name, automatic QR display, QR image decoding into the student form, a student joining the created room, bank editor navigation, classroom API regression tests and the Worker build.
