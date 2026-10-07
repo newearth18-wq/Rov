@@ -3,7 +3,7 @@
 function battleEvent(type,at,extra={}){if(!game)return;const life=type==='sound'?1.1:.32;effects.push({type,fxId:'feedback:'+game.nextId++,x:at.x,y:at.y,life,max:life,...extra});}
 const feedbackStart=startGame;
 startGame=function(){const result=feedbackStart();game.matchId=String(Date.now())+':'+Math.random().toString(36).slice(2);return result;};
-function weaponSound(p){const id=p.def?.id;return p.type==='tower'||p.type==='base'?'turret':['stuart','capheny','elsu'].includes(id)?(id==='elsu'||p.cannon?'cannon':'gun'):['ranger','flowborn','hayate'].includes(id)?'bow':['arcanist','ignis'].includes(id)?'fire':['oracle','zata'].includes(id)?'magic':'sword';}
+function weaponSound(p){const id=p.def?.id;return p.type==='tower'||p.type==='base'?'turret':['stuart','capheny','elsu'].includes(id)?(id==='elsu'||p.cannon?'cannon':'gun'):['ranger','flowborn','hayate','telannas'].includes(id)?'bow':['arcanist','ignis'].includes(id)?'fire':['oracle','zata','ilumia','lauriel','liliana'].includes(id)?'magic':'sword';}
 function skillSound(p,key){const id=p.def?.id;if(id==='oracle')return 'heal';if(['bulwark','mortos'].includes(id)&&key!=='q'||id==='stuart'&&key==='w')return 'shield';if(['zata','flowborn','shade','taara'].includes(id)&&key==='e'||key==='w'&&['sentinel','ranger','shade','capheny'].includes(id))return 'dash';return key==='e'?'ultimate':weaponSound(p);}
 const feedbackDamage=damage;
 damage=function(target,amount,source){const hp=target.hp,shield=target.shield||0,dead=target.dead;const result=feedbackDamage(target,amount,source);if(!dead&&(target.hp<hp||(target.shield||0)<shield)){

@@ -1,7 +1,7 @@
 const assert=require('node:assert/strict');
 (async()=>{
-  const THREE=await import('three'),{forgeTemplates}=await import('../client/forge-heroes.mjs');
-  const templates=forgeTemplates();assert.equal(templates.size,16);
+  const THREE=await import('three'),{forgeTemplates}=await import('../client/forge-heroes.mjs'),{poseLoreForm}=await import('../client/lore-heroes.mjs');
+  const templates=forgeTemplates();assert.equal(templates.size,22);
   for(const [id,model]of templates){
     assert.ok(model.scene.userData.height>1.6&&model.scene.userData.height<2.4,id+' anatomy bounds');
     const first=model.scene.clone(true),second=model.scene.clone(true),mixer=new THREE.AnimationMixer(first);
@@ -11,7 +11,17 @@ const assert=require('node:assert/strict');
     for(const clip of model.animations){mixer.stopAllAction();mixer.clipAction(clip).reset().play();for(let i=0;i<15;i++)mixer.update(.05);first.updateMatrixWorld(true);first.traverse(n=>{for(const value of n.matrixWorld.elements)assert.ok(Number.isFinite(value),id+' '+clip.name+' finite pose');});}
     let meshes=0;model.scene.traverse(n=>{if(n.isMesh){meshes++;const positions=n.geometry.attributes.position.array;for(const value of positions)assert.ok(Number.isFinite(value),id+' finite geometry');}});assert.ok(meshes<60,id+' mesh budget');
     const foot=new THREE.Box3().setFromObject(second.getObjectByName('LFoot'));assert.ok(Math.abs(foot.min.y-model.scene.userData.ground)<.0001,id+' ground anchor');
+    if(id==='liliana'||id==='volkath'){
+      const form=id==='liliana'?'FoxForm':'MountedForm';
+      poseLoreForm(first,id,{foxForm:true,mounted:8},.4,true);
+      assert.equal(first.getObjectByName(form).visible,true,id+' alternate model visible');
+      assert.equal(second.getObjectByName(form).visible,false,id+' form is isolated per entity');
+      assert.equal(first.getObjectByName(id==='liliana'?'Hips':'LLeg').visible,false,id+' hidden human parts');
+      first.updateMatrixWorld(true);first.traverse(n=>n.matrixWorld.elements.forEach(v=>assert.ok(Number.isFinite(v),id+' finite alternate pose')));
+      poseLoreForm(first,id,{},1,false);assert.equal(first.getObjectByName(form).visible,false,id+' restores default form');
+      assert.equal(first.getObjectByName(id==='liliana'?'Hips':'LLeg').visible,true,id+' restores human parts');
+    }
     mixer.stopAllAction();mixer.uncacheRoot(first);
   }
-  console.log('Art checks passed: sixteen character meshes, independent animation rigs, finite poses and ground anchors.');
+  console.log('Art checks passed: twenty-two character meshes, independent animation rigs, finite poses and ground anchors.');
 })().catch(e=>{console.error(e);process.exitCode=1;});

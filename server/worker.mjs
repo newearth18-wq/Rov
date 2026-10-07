@@ -1,5 +1,5 @@
 import {classroomApi} from './classroom.mjs';
-const HERO_IDS=['sentinel','arcanist','ranger','bulwark','shade','oracle','stuart','capheny','maloch','ignis','mortos','taara','elsu','hayate','flowborn','zata'];
+const HERO_IDS=['sentinel','arcanist','ranger','bulwark','shade','oracle','stuart','capheny','maloch','ignis','mortos','taara','elsu','hayate','flowborn','zata','ilumia','lauriel','liliana','nakroth','telannas','volkath'];
 const POSITIONS=['off','mid','carry','jungle','roam'];
 const RUNES=['power','vitality','speed'],ENCHANTS=['fury','guard','recovery'];
 const ITEMS=['blade','boots','armor','orb','fang','haste'];

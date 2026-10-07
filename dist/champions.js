@@ -79,7 +79,7 @@ useSkill=function(key,actor=null,aim=null){const p=actor||game?.player;if(!p||p.
 const championMove=move;
 move=function(e,x,y,dt){return championMove(e,x,y,dt*(e.slow>0?.6:1)*(e.hasteTime>0?e.haste:1)*(e.channel>0&&e.channelMove?.35:1));};
 const championDamage=damage;
-damage=function(t,amount,source){const physical=!['arcanist','oracle','ignis','zata'].includes(source.def?.id);if(t.invulnerable>0||physical&&t.physicalDodge>0)return;return championDamage(t,amount,source);};
+damage=function(t,amount,source){const physical=!['arcanist','oracle','ignis','zata','ilumia','lauriel','liliana'].includes(source.def?.id);if(t.invulnerable>0||physical&&t.physicalDodge>0)return;return championDamage(t,amount,source);};
 const championStrike=strike;
 strike=function(p,t){const count=game?.strikes?.length||0;championStrike(p,t);const hit=game?.strikes?.[count];if(!hit||hit.source!==p.id)return;if(p.def.id==='capheny'){p.attack=p.cannonMode?.9:.38;hit.amount*=p.cannonMode?1.45:.85;if(p.cannonMode)hit.splash=80;}if(p.def.id==='taara')hit.amount*=1+(1-p.hp/p.maxHp)*.65;if(p.cleaveEmpowered>0)hit.amount*=1.25;if(p.silencingHit>0){hit.silence=1.2;hit.amount+=70+p.level*8;p.silencingHit=0;}if(p.def.id==='flowborn'&&p.flowStacks>0){p.flowStacks--;hit.amount+=65+p.level*8;hit.splash=65;}if(p.def.id==='zata'){p.featherHit=((p.featherHit||0)+1)%3;if(p.featherHit===0)hit.amount+=120+p.level*10;}if(p.def.id==='hayate'){p.hayateHit=((p.hayateHit||0)+1)%4;if(p.hayateHit===0)hit.amount+=t.maxHp*.035;}};
 const oldChampionVisible=visibleToTeam;

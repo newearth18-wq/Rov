@@ -14,7 +14,7 @@ async function main(){
   for(const mode of ['split','mass']){
     const room=await ok('classes','POST',{bankId:custom.id,title:'ทดสอบ '+mode,mode,minutes:8,mission:'ใช้ความรู้คณิตศาสตร์วางแผนร่วมกัน'},teacher.token);
     assert.equal((await call(`classes/${room.code}/control`,'POST',{action:'next'},teacher.token)).status,400,'cannot begin empty class');
-    const joined=await Promise.all(Array.from({length:51},(_,n)=>call(`classes/${room.code}/join`,'POST',{name:'นักเรียน '+(n+1),hero:source.questions[n%source.questions.length]?'stuart':'sentinel'})));
+    const joined=await Promise.all(Array.from({length:51},(_,n)=>call(`classes/${room.code}/join`,'POST',{name:'นักเรียน '+(n+1),hero:['stuart','ilumia','lauriel','liliana','nakroth','telannas','volkath'][n%7]})));
     const players=joined.filter(r=>r.status===201).map(r=>r.data).sort((a,b)=>a.arena-b.arena||a.roomSlot-b.roomSlot);assert.equal(players.length,50,'atomic admission of 50 students');assert.equal(joined.filter(r=>r.status===409).length,1,'51st student rejected');
     assert.equal(new Set(players.map(p=>p.arena+':'+p.roomSlot)).size,50,'unique assignment');
     if(mode==='mass'){assert.equal(players.filter(p=>p.team===0).length,25);assert.equal(players.filter(p=>p.team===1).length,25);}else for(let arena=0;arena<5;arena++){assert.equal(players.filter(p=>p.arena===arena).length,10);assert.equal(players.filter(p=>p.arena===arena&&p.team===0).length,5);}

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {additionalTemplates} from './additional-heroes.mjs';
+import {loreTemplates} from './lore-heroes.mjs';
 import {tailorBody,tailorMotion} from './hero-tailoring.mjs';
 
 // Original articulated character meshes. Coordinates are metres; +Z is the face.
@@ -153,4 +154,4 @@ function dragonRider(){
   const a=[0,.12,.25,.4,.6],attack=new THREE.AnimationClip('Bow_Shoot',.6,[track('DragonNeck','x',a,[0,-.25,.23,.08,0]),track('RArm','x',a,[-.42,-1.4,-.6,-.42,-.42]),track('Rider','y',a,[0,-.15,.18,.05,0])]);clips.push(attack);const spell=attack.clone();spell.name='Spell1';clips.push(spell);clips.push(new THREE.AnimationClip('Spell2',1,[track('LWing','z',[0,.25,.65,1],[-.08,-.6,-.35,-.08]),track('RWing','z',[0,.25,.65,1],[.08,.6,.35,.08]),track('DragonNeck','x',[0,.25,.65,1],[0,-.4,-.12,0]),track('RArm','x',[0,.25,.65,1],[-.42,-1.5,-1.2,-.42])]));
   clips.push(new THREE.AnimationClip('Roll',.32,[track('Torso','x',[0,.16,.32],[0,.15,0])]));clips.push(new THREE.AnimationClip('Death',.65,[track('Hips','z',[0,.25,.65],[0,.25,1.15]),new THREE.NumberKeyframeTrack('Hips.position[y]',[0,.25,.65],[.78,.6,.3])]));return {scene,animations:clips};
 }
-export function forgeTemplates(){return new Map([...Object.keys(palettes).map(id=>[id,id==='arcanist'?dragonRider():make(id)]),...additionalTemplates(make)]);}
+export function forgeTemplates(){return new Map([...Object.keys(palettes).map(id=>[id,id==='arcanist'?dragonRider():make(id)]),...additionalTemplates(make),...loreTemplates(make)]);}

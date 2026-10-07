@@ -1,0 +1,20 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),{sandbox,run}=require('./smoke.cjs');
+(async()=>{
+  const worker=(await import('../server/worker.mjs')).default,DB=require('../server/local-db.cjs').createDb();
+  const api=async(route,method='GET',body,token)=>{const r=await worker.fetch(new Request('https://arena.test/api/'+route,{method,headers:{'content-type':'application/json',...(token?{authorization:'Bearer '+token}:{})},body:method==='GET'?undefined:JSON.stringify(body)}),{DB},{});assert.ok(r.ok,route+' '+r.status);return r.json();};
+  const config={name:'Host',team:0,position:'mid',hero:'ilumia',rune:'power',enchant:'guard'},host=await api('rooms','POST',config),guest=await api('rooms/'+host.code+'/join','POST',{...config,name:'Guest',team:1,hero:'liliana'});
+  sandbox.setInterval=()=>0;sandbox.AbortSignal=AbortSignal;sandbox.navigator={clipboard:{writeText:async()=>{}}};
+  run(fs.readFileSync(path.join(__dirname,'../dist/network.js'),'utf8').replace('void restoreRoom();',''));
+  sandbox.session=host;sandbox.members=(await api('rooms/'+host.code,'GET',undefined,host.token)).members;
+  run('net.session=session;net.mode="online";originals.start();configureRoster(members);useSkill("e")');
+  const snapshot=JSON.parse(run('JSON.stringify(serializeMatch())'));assert.equal(snapshot.loreEvents.length,5,'global strikes queued for five enemies');
+  await api('rooms/'+host.code+'/start','POST',{state:snapshot},host.token);
+  const received=await api('rooms/'+host.code,'GET',undefined,guest.token);assert.deepEqual(received.state.loreEvents,snapshot.loreEvents,'pending lore skills survive DB transport');
+  await api('rooms/'+host.code+'/input','POST',{seq:1,move:{x:0,y:0},commands:[{id:1,kind:'e',aim:{x:1200,y:300}}]},guest.token);
+  sandbox.members=(await api('rooms/'+host.code,'GET',undefined,host.token)).members;run('applyRemoteInputs(members)');
+  const updated=JSON.parse(run('JSON.stringify(serializeMatch())'));const fox=updated.entities.find(e=>e.clientId===guest.playerId);assert.equal(fox.foxForm,true);assert.equal(fox.def.id,'liliana');
+  await api('rooms/'+host.code+'/state','POST',{state:updated},host.token);
+  const joined=await api('rooms/'+host.code,'GET',undefined,guest.token);assert.equal(joined.state.entities.find(e=>e.clientId===guest.playerId).foxForm,true,'guest gets fox model state');
+  sandbox.received=joined.state;run('acceptSnapshot(received)');assert.equal(run('game.loreEvents.length'),5,'host recovery retains delayed skills');run('for(let i=0;i<20;i++)update(.05)');assert.equal(run('game.loreEvents.length'),0,'recovered strikes resolve once');
+  DB.close();console.log('PASS: lore skill queues, guest form changes and host recovery survive authenticated room transport.');
+})().catch(e=>{console.error(e);process.exitCode=1;});
