@@ -21,21 +21,21 @@ function championDash(p,aim,range,backwards=false){const dx=aim.x-p.x,dy=aim.y-p
 function championJump(p,aim,range){championDash(p,aim,range);p.jumpUntil=game.time+.45;p.jumpDuration=.45;setAction(p,'ultimate',aim);}
 function championEvent(p,delay,kind,data){game.championEvents ||= [];game.championEvents.push({source:p.id,at:game.time+delay,kind,...data});}
 const oldChampionSkill=useSkill;
-useSkill=function(key,actor=null,aim=null){const p=actor||game?.player;if(!p||p.silence>0)return false;if(!championIds.has(p.def.id))return oldChampionSkill(key,actor,aim);if(!game||game.paused||game.finished||p.dead||p.stun>0||p.channel>0||p.cd[key]>0||!['q','w','e'].includes(key))return false;const cost=key==='e'?90:key==='w'?35:45;if((p.mana??400)<cost)return false;aim=aim&&Number.isFinite(aim.x)&&Number.isFinite(aim.y)?aim:aimFor(p,skillInfo(p,key).range||400);const at=limitAim(p,aim,skillInfo(p,key).range||400);let cd=key==='e'?22:key==='w'?8:6;setAction(p,key==='e'?'ultimate':'spell',aim);
+useSkill=function(key,actor=null,aim=null){const p=actor||game?.player;if(!p||p.silence>0)return false;if(!championIds.has(p.def.id))return oldChampionSkill(key,actor,aim);if(!game||game.paused||game.finished||p.dead||p.stun>0||p.channel>0||p.cd[key]>0||!['q','w','e'].includes(key))return false;const recast=key==='e'&&(p.def.id==='zata'&&p.zataStep>0||p.def.id==='flowborn'&&p.flowUlt===1),cost=recast?0:key==='e'?90:key==='w'?35:45;if((p.mana??400)<cost)return false;aim=aim&&Number.isFinite(aim.x)&&Number.isFinite(aim.y)?aim:aimFor(p,skillInfo(p,key).range||400);const at=limitAim(p,aim,skillInfo(p,key).range||400);let cd=key==='e'?22:key==='w'?8:6;setAction(p,key==='e'?'ultimate':'spell',aim);
   switch(p.def.id){
     case 'stuart':
       if(key==='q')championCast(p,aim,{line:true,range:650,radius:25,amount:230,delay:.28});
-      if(key==='w'){p.invulnerable=1.3;p.haste=1.6;p.hasteTime=2;cd=12;championRing(p,p,65);}
+      if(key==='w'){p.physicalDodge=1.3;p.haste=1.6;p.hasteTime=2;cd=12;championRing(p,p,65);}
       if(key==='e'){championProjectile(p,aim,{range:420,damage:240,stun:.8,splash:65});championDash(p,aim,135,true);setAction(p,'dash',aim);}
       break;
     case 'capheny':
       if(key==='q'){p.cannonMode=!p.cannonMode;p.range+=p.cannonMode?55:-55;cd=2;if(p.player)notify(p.cannonMode?'โหมดเลเซอร์ · ยิงแรงและไกลขึ้น':'โหมดปืนกล · ยิงเร็ว');}
       if(key==='w'){p.slow=0;p.haste=1.65;p.hasteTime=2;championRing(p,p,55);}
-      if(key==='e'){p.channel=1.6;for(let n=0;n<12;n++)championEvent(p,n*.12,'fan',{aim:{...aim}});cd=20;}
+      if(key==='e'){p.channel=1.6;p.channelMove=true;for(let n=0;n<12;n++)championEvent(p,n*.12,'fan',{aim:{...aim}});cd=20;}
       break;
     case 'maloch':
       if(key==='q'){const hit=enemies(p,230,true).some(t=>t.type==='hero');hitCone(p,aim,230,(210+p.level*18)*p.spell,.05);if(hit){heal(p,100+p.level*15);p.cleaveEmpowered=4;}effects.push({type:'slash',x:p.x,y:p.y,tx:aim.x,ty:aim.y,radius:230,color:championTint.maloch,life:.5,max:.5});}
-      if(key==='w'){const victims=enemies(p,220,true);p.shield=120+Math.min(3,victims.length)*p.maxHp*.06;p.shieldTime=5;for(const t of victims)t.slow=2;championRing(p,p,220);}
+      if(key==='w'){const victims=enemies(p,220,true).filter(t=>!['tower','base'].includes(t.type));p.shield=120+Math.min(3,victims.length)*p.maxHp*.06;p.shieldTime=5;for(const t of victims)t.slow=2;championRing(p,p,220);}
       if(key==='e'){championJump(p,at,380);championCast(p,p,{delay:.45,radius:170,amount:290,stun:1});cd=24;}
       break;
     case 'ignis':
@@ -64,7 +64,7 @@ useSkill=function(key,actor=null,aim=null){const p=actor||game?.player;if(!p||p.
       if(key==='e'){championDash(p,at,290);p.channel=1.8;for(let n=0;n<8;n++)championCast(p,p,{delay:n*.22+.05,radius:180,amount:55,follow:true,interruptible:true});cd=22;}
       break;
     case 'flowborn':
-      if(key==='q'){for(const t of enemies(p,145,true)){damage(t,(95+p.level*8)*p.spell,p);const dx=t.x-p.x,dy=t.y-p.y,d=Math.hypot(dx,dy)||1;t.x+=dx/d*65;t.y+=dy/d*65;safeLanding(t);}heal(p,150+p.level*12);p.flowStacks=5;p.cd.w*=.5;p.cd.e*=.5;championRing(p,p,145);}
+      if(key==='q'){for(const t of enemies(p,145,true).filter(t=>!['tower','base'].includes(t.type))){spellDamage(t,(95+p.level*8)*p.spell,p);const dx=t.x-p.x,dy=t.y-p.y,d=Math.hypot(dx,dy)||1;t.x+=dx/d*65;t.y+=dy/d*65;safeLanding(t);}heal(p,150+p.level*12);p.flowStacks=5;p.cd.w*=.5;p.cd.e*=.5;championRing(p,p,145);}
       if(key==='w')championProjectile(p,aim,{range:520,damage:170,splash:70,slow:1});
       if(key==='e'){championJump(p,at,330);championCast(p,p,{delay:.45,radius:125,amount:210});if(p.flowUlt===1){p.flowUlt=0;cd=Math.max(0,p.flowReadyAt-game.time);}else{p.flowUlt=1;p.flowWindow=game.time+3;p.flowReadyAt=game.time+20;cd=.18;}}
       break;
@@ -77,15 +77,15 @@ useSkill=function(key,actor=null,aim=null){const p=actor||game?.player;if(!p||p.
   p.mana=(p.mana??400)-cost;p.cd[key]=cd*(1-Math.min(.6,p.cdr));p.recall=0;if(p.player){tone(key==='e'?200:560,.1);syncHud();}return true;
 };
 const championMove=move;
-move=function(e,x,y,dt){return championMove(e,x,y,dt*(e.slow>0?.6:1)*(e.hasteTime>0?e.haste:1));};
+move=function(e,x,y,dt){return championMove(e,x,y,dt*(e.slow>0?.6:1)*(e.hasteTime>0?e.haste:1)*(e.channel>0&&e.channelMove?.35:1));};
 const championDamage=damage;
-damage=function(t,amount,source){if(t.invulnerable>0)return;return championDamage(t,amount,source);};
+damage=function(t,amount,source){const physical=!['arcanist','oracle','ignis','zata'].includes(source.def?.id);if(t.invulnerable>0||physical&&t.physicalDodge>0)return;return championDamage(t,amount,source);};
 const championStrike=strike;
 strike=function(p,t){const count=game?.strikes?.length||0;championStrike(p,t);const hit=game?.strikes?.[count];if(!hit||hit.source!==p.id)return;if(p.def.id==='capheny'){p.attack=p.cannonMode?.9:.38;hit.amount*=p.cannonMode?1.45:.85;if(p.cannonMode)hit.splash=80;}if(p.def.id==='taara')hit.amount*=1+(1-p.hp/p.maxHp)*.65;if(p.cleaveEmpowered>0)hit.amount*=1.25;if(p.silencingHit>0){hit.silence=1.2;hit.amount+=70+p.level*8;p.silencingHit=0;}if(p.def.id==='flowborn'&&p.flowStacks>0){p.flowStacks--;hit.amount+=65+p.level*8;hit.splash=65;}if(p.def.id==='zata'){p.featherHit=((p.featherHit||0)+1)%3;if(p.featherHit===0)hit.amount+=120+p.level*10;}if(p.def.id==='hayate'){p.hayateHit=((p.hayateHit||0)+1)%4;if(p.hayateHit===0)hit.amount+=t.maxHp*.035;}};
 const oldChampionVisible=visibleToTeam;
 visibleToTeam=function(e,team){return oldChampionVisible(e,team)||e.type==='hero'&&(game?.wards||[]).some(w=>w.team===team&&w.until>game.time&&distance(w,e)<w.radius);};
 const championUpdate=update;
-update=function(dt){if(!game||game.paused||game.finished)return championUpdate(dt);for(const p of game.entities.filter(e=>e.type==='hero')){for(const key of ['silence','slow','hasteTime','invulnerable','cleaveEmpowered','silencingHit','flight'])p[key]=Math.max(0,(p[key]||0)-dt);if(!p.dead&&p.regeneration>0){heal(p,p.maxHp*.06*dt);p.regeneration=Math.max(0,p.regeneration-dt);}if(p.dead){p.regeneration=p.flight=p.invulnerable=p.flowUlt=p.zataStep=0;}if(p.flowUlt===1&&game.time>=p.flowWindow){p.flowUlt=0;p.cd.e=Math.max(0,p.flowReadyAt-game.time);}if(p.zataStep>0&&game.time>=p.zataWindow){p.zataStep=0;p.cd.e=Math.max(0,p.zataReadyAt-game.time);}if(p.stun>0&&p.channel>0){p.channel=0;game.casts=(game.casts||[]).filter(c=>c.source!==p.id||!c.interruptible);game.championEvents=(game.championEvents||[]).filter(e=>e.source!==p.id);}}
+update=function(dt){if(!game||game.paused||game.finished)return championUpdate(dt);for(const p of game.entities.filter(e=>e.type==='hero')){for(const key of ['silence','slow','hasteTime','invulnerable','physicalDodge','cleaveEmpowered','silencingHit','flight'])p[key]=Math.max(0,(p[key]||0)-dt);if(!p.dead&&p.regeneration>0){heal(p,p.maxHp*.06*dt);p.regeneration=Math.max(0,p.regeneration-dt);}if(p.dead){p.regeneration=p.flight=p.invulnerable=p.physicalDodge=p.flowUlt=p.zataStep=0;p.channelMove=false;}if(p.flowUlt===1&&game.time>=p.flowWindow){p.flowUlt=0;p.cd.e=Math.max(0,p.flowReadyAt-game.time);}if(p.zataStep>0&&game.time>=p.zataWindow){p.zataStep=0;p.cd.e=Math.max(0,p.zataReadyAt-game.time);}if(p.stun>0&&p.channel>0){p.channel=0;game.casts=(game.casts||[]).filter(c=>c.source!==p.id||!c.interruptible);game.championEvents=(game.championEvents||[]).filter(e=>e.source!==p.id);}}
   const events=game.championEvents||[];game.championEvents=[];for(const e of events){if(e.at>game.time){game.championEvents.push(e);continue;}const p=game.entities.find(p=>p.id===e.source&&!p.dead);if(!p||p.stun>0)continue;if(e.kind==='projectile')championProjectile(p,e.aim,e.options);if(e.kind==='fan')for(const spread of [-.22,0,.22])championProjectile(p,e.aim,{range:480,damage:25,spread});}
   championUpdate(dt);game.wards=(game.wards||[]).filter(w=>w.until>game.time);for(const p of game.entities.filter(e=>e.def?.id==='mortos'&&!e.dead&&game.time-(e.lastDamaged??0)>8))heal(p,p.maxHp*.012*dt);
 };

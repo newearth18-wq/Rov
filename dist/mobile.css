@@ -45,3 +45,8 @@ body:not(.graphics-fallback) #heroFigure{background-image:none}body:not(.graphic
 @media(max-height:550px) and (min-width:650px){.heroes{max-height:174px;gap:5px}.hero-card,.hero-card.selected{min-height:80px}.hero-stage{min-height:285px}.lobby{grid-template-columns:minmax(220px,.8fr) minmax(400px,1.3fr)}}
 @media(max-width:649px){.heroes{grid-template-columns:repeat(4,minmax(0,1fr));max-height:260px}.hero-card,.hero-card.selected{min-height:95px}.hero-card b{font-size:10px}.hero-card small{font-size:8px}.hero-stage{position:relative}}
 @media(max-height:550px) and (min-width:650px){.heroes{max-height:126px}.hero-card,.hero-card.selected{min-height:72px}.hero-stage{height:285px;min-height:285px}#heroFigure{height:265px;width:265px}.hero-stage-copy{bottom:0}.lobby-note{margin-top:4px}.setup-row{margin:6px 0}}
+
+.heroes{scroll-snap-type:y proximity}.hero-card{scroll-snap-align:start}.hero-card b{font-size:12px}.hero-card small{font-size:11px}.hero-card .model-portrait{height:calc(100% - 20px)}.three-ready .hero-card{background:radial-gradient(ellipse at 50% 35%,#2a4754,#101f2d 80%)}
+@media(max-height:550px) and (min-width:650px){.heroes{max-height:146px}.hero-card,.hero-card.selected{min-height:70px}.lobby{padding-top:42px;padding-bottom:8px}.hero-card b{font-size:10px}.hero-card small{display:none}.setup-row select{padding:3px}.lobby-note{display:none}.hero-stage{height:275px;min-height:275px}.hero-stage-copy #selectedDetails{font-size:11px;line-height:1.6}.buff-status{font-size:11px}}
+.ability-row b{font-size:11px!important}.ability-row button>span svg{width:30px;height:30px}.playing .scorebar{background:#0b1827a8}.playing .objective-status{background:#0b182789}
+.playing .ability-row b{font-size:11px!important}

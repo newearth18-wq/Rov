@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {additionalTemplates} from './additional-heroes.mjs';
+import {tailorBody,tailorMotion} from './hero-tailoring.mjs';
 
 // Original articulated character meshes. Coordinates are metres; +Z is the face.
 // Geometry is shared by clones, while every character has independent animation state.
@@ -93,6 +94,7 @@ function make(id,p=palettes[id],decorate=null){
   }
   if(id==='oracle'){for(const s of [-1,1])for(let i=0;i<3;i++){plate(torso,m.trim,[[0,0],[s*(.22+i*.055),.16-i*.025],[s*(.19+i*.03),-.11]],.018,s*.14,.36,-.15-i*.035);}}
   if(id==='bulwark')root.scale.set(1.3,1.08,1.15);
+  if(!decorate&&['ranger','oracle','shade'].includes(id))tailorBody({ranger:'flowborn',oracle:'ignis',shade:'hayate'}[id],{scene,root,torso,m});
   if(decorate)decorate({scene,root,torso,head,m});
   mergePart(scene);scene.updateMatrixWorld(true);scene.userData.ground=new THREE.Box3().setFromObject(scene.getObjectByName('LFoot')).min.y;scene.userData.height=new THREE.Box3().setFromObject(head).max.y-scene.userData.ground;
   const track=(node,axis,times,values)=>new THREE.NumberKeyframeTrack(`${node}.rotation[${axis}]`,times,values);
@@ -104,7 +106,7 @@ function make(id,p=palettes[id],decorate=null){
   const spell=attack.clone();spell.name='Spell1';clips.push(spell);
   clips.push(new THREE.AnimationClip('Roll',.32,[track('Torso','x',[0,.16,.32],[.12,.55,.12]),track('LArm','x',[0,.16,.32],[.1,.55,.1]),track('RArm','x',[0,.16,.32],[.1,.55,.1])]));
   clips.push(new THREE.AnimationClip('Death',.65,[track('Hips','x',[0,.2,.65],[0,-.3,-1.45]),new THREE.NumberKeyframeTrack('Hips.position[y]',[0,.2,.65],[.99,.85,.17])]));
-  return {scene,animations:clips};
+  const result={scene,animations:clips};return !decorate&&['ranger','oracle','shade'].includes(id)?tailorMotion({ranger:'flowborn',oracle:'ignis',shade:'hayate'}[id],result):result;
 }
 function dragonRider(){
   const material=(color,metalness=0,roughness=.7)=>new THREE.MeshStandardMaterial({color,metalness,roughness});

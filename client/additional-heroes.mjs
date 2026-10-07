@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {tailorBody,tailorMotion} from './hero-tailoring.mjs';
 
 // Rift Arena interpretations of the ten heroes in the user's reference video.
 // Each portrait and battlefield instance comes from this same articulated template.
@@ -43,14 +44,15 @@ function cleaver(elbow,m){const w=group(elbow,0,-.3,0);put(w,new THREE.CylinderG
 function bow(elbow,m){const w=group(elbow,0,-.28,.03);cable(w,m.trim,[[0,.50,0],[-.15,.32,0],[-.19,0,0],[-.13,-.31,0],[0,-.5,0]],.028);cable(w,m.glow,[[0,.50,0],[.065,0,0],[0,-.5,0]],.007);}
 function throwingStar(elbow,m){const w=group(elbow,0,-.31,.06);for(let i=0;i<4;i++){const a=i*Math.PI/2,p=put(w,new THREE.ConeGeometry(.06,.26,3),m.metal,Math.sin(a)*.12,Math.cos(a)*.12,0);p.rotation.z=-a;}ball(w,m.trim,0,0,.02,.056,.056,.018);}
 function wings(torso,m,demon){for(const s of [-1,1]){const w=group(torso,s*.13,.34,-.16);w.rotation.z=s*.12;if(demon){const pts=[0,0,0,s*.52,.22,-.10,s*.78,-.02,-.18,s*.46,-.19,-.08,s*.24,-.10,-.02],g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));g.setIndex([0,1,3,1,2,3,0,3,4]);g.computeVertexNormals();const membrane=m.cloth.clone();membrane.side=THREE.DoubleSide;put(w,g,membrane);cable(w,m.trim,[[0,0,0],[s*.52,.22,-.1],[s*.78,-.02,-.18]],.02);}else for(let i=0;i<7;i++){const feather=ball(w,i%2?m.cloth:m.metal,s*(.16+i*.045),.17-i*.055,-.035*i,.045,.35-i*.018,.014);feather.rotation.z=-s*(.5+i*.1);}}}
-export function additionalTemplates(factory){return Object.entries(config).map(([id,[base,metal,trim,cloth,light]])=>[id,factory(base,{metal,trim,cloth,light},({scene,root,torso,head,m})=>{
+export function additionalTemplates(factory){return Object.entries(config).map(([id,[base,metal,trim,cloth,light]])=>[id,tailorMotion(id,factory(base,{metal,trim,cloth,light},({scene,root,torso,head,m})=>{
+  tailorBody(id,{scene,root,torso,m});
   if(id!=='mortos')face(head,id,m);
   const left=scene.getObjectByName('LElbow'),right=scene.getObjectByName('RElbow');for(const elbow of [left,right])for(const child of [...elbow.children])if(child.isGroup)elbow.remove(child);
   if(id==='stuart'){gun(left,m,id);gun(right,m,id);for(const s of [-1,1])ball(torso,m.cloth,s*.16,-.15,-.10,.11,.4,.06);}
-  if(id==='capheny'){gun(right,m,id);scene.getObjectByName('RArm').rotation.x=-.55;}
+  if(id==='capheny'){gun(right,m,id);}
   if(id==='elsu'){gun(right,m,id);cable(torso,m.cloth,[[-.13,.45,.14],[.1,.38,.15],[.17,.05,.10]],.04);}
   if(id==='taara')hammer(right,m);
-  if(id==='maloch'){cleaver(right,m);wings(torso,m,true);root.scale.set(1.35,1.12,1.22);}
+  if(id==='maloch'){cleaver(right,m);wings(torso,m,true);root.scale.set(1.45,1.10,1.16);}
   if(id==='mortos'){
     const sword=group(right,0,-.3,0);put(sword,new THREE.BoxGeometry(.07,.8,.025),m.metal,0,-.5,0);put(sword,new THREE.BoxGeometry(.27,.025,.055),m.trim,0,-.09,0);sword.rotation.x=-.6;put(left,new THREE.BoxGeometry(.32,.58,.06),m.metal,0,-.22,.1);put(left,new THREE.BoxGeometry(.035,.5,.025),m.trim,0,-.22,.14);
   }
@@ -61,4 +63,4 @@ export function additionalTemplates(factory){return Object.entries(config).map((
   }
   if(id==='zata'){wings(torso,m,false);for(const elbow of [left,right])ball(elbow,m.glow,0,-.3,.08,.06,.06,.025);}
   scene.userData.hero=id;
-})]);}
+}))]);}
