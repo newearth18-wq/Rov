@@ -25,4 +25,4 @@ el('soundBtn').onclick();assert.equal(stored['rift.sound'],'on');el('soundVolume
 run('audioContext.currentTime=3;battleEvent("sound",{x:1490,y:10},{sound:"gun"});');const distant=el('soundBtn').dataset.soundCount;frame();assert.equal(el('soundBtn').dataset.soundCount,distant,'faraway battle is inaudible');
 run('audioContext.currentTime=4;game.player.kills++;game.time+=1;');frame();assert.equal(el('soundBtn').dataset.lastSound,'kill','kill cue follows player stats');
 run('audioContext.currentTime=6;game.finished=true;game.winner=game.player.team;');frame();assert.equal(el('soundBtn').dataset.lastSound,'win','victory cue');
-console.log('PASS: 22 original sound designs, signal/headroom, accepted combat events, autoplay unlock, mute/volume, snapshot deduplication, distance, kill and victory cues.');
+console.log('PASS: 20 original sound designs, signal/headroom, accepted combat events, autoplay unlock, mute/volume, snapshot deduplication, distance, kill and victory cues.');
