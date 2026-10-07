@@ -1,11 +1,11 @@
 {
   "name": "rift-arena",
-  "version": "8.0.0",
+  "version": "9.0.0",
   "private": true,
   "description": "Original browser MOBA with sixteen heroes, bots and online rooms",
   "scripts": {
     "start": "node server.cjs",
-    "test": "node tests/smoke.cjs && node tests/online.cjs && node tests/mobile.cjs && node tests/combat.cjs && node tests/champions.cjs && node tests/feel.cjs && node tests/art.cjs",
+    "test": "node tests/smoke.cjs && node tests/online.cjs && node tests/mobile.cjs && node tests/combat.cjs && node tests/champions.cjs && node tests/feel.cjs && node tests/audio.cjs && node tests/art.cjs",
     "build": "node scripts/build.mjs",
     "db:generate": "drizzle-kit generate",
     "build:client": "node scripts/build-client.mjs"
