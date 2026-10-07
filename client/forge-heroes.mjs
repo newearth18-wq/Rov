@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {mergeGeometries} from 'three/addons/utils/BufferGeometryUtils.js';
 import {additionalTemplates} from './additional-heroes.mjs';
 import {loreTemplates} from './lore-heroes.mjs';
+import {humanFace} from './human-face.mjs';
 import {tailorBody,tailorMotion} from './hero-tailoring.mjs';
 
 // Original articulated character meshes. Coordinates are metres; +Z is the face.
@@ -96,6 +97,7 @@ function make(id,p=palettes[id],decorate=null){
   if(id==='oracle'){for(const s of [-1,1])for(let i=0;i<3;i++){plate(torso,m.trim,[[0,0],[s*(.22+i*.055),.16-i*.025],[s*(.19+i*.03),-.11]],.018,s*.14,.36,-.15-i*.035);}}
   if(id==='bulwark')root.scale.set(1.3,1.08,1.15);
   if(!decorate&&['ranger','oracle','shade'].includes(id))tailorBody({ranger:'flowborn',oracle:'ignis',shade:'hayate'}[id],{scene,root,torso,m});
+  if(['ranger','oracle','shade'].includes(id)&&!decorate)humanFace(head,id,m);
   if(decorate)decorate({scene,root,torso,head,m});
   mergePart(scene);scene.updateMatrixWorld(true);scene.userData.ground=new THREE.Box3().setFromObject(scene.getObjectByName('LFoot')).min.y;scene.userData.height=new THREE.Box3().setFromObject(head).max.y-scene.userData.ground;
   const track=(node,axis,times,values)=>new THREE.NumberKeyframeTrack(`${node}.rotation[${axis}]`,times,values);
@@ -154,4 +156,4 @@ function dragonRider(){
   const a=[0,.12,.25,.4,.6],attack=new THREE.AnimationClip('Bow_Shoot',.6,[track('DragonNeck','x',a,[0,-.25,.23,.08,0]),track('RArm','x',a,[-.42,-1.4,-.6,-.42,-.42]),track('Rider','y',a,[0,-.15,.18,.05,0])]);clips.push(attack);const spell=attack.clone();spell.name='Spell1';clips.push(spell);clips.push(new THREE.AnimationClip('Spell2',1,[track('LWing','z',[0,.25,.65,1],[-.08,-.6,-.35,-.08]),track('RWing','z',[0,.25,.65,1],[.08,.6,.35,.08]),track('DragonNeck','x',[0,.25,.65,1],[0,-.4,-.12,0]),track('RArm','x',[0,.25,.65,1],[-.42,-1.5,-1.2,-.42])]));
   clips.push(new THREE.AnimationClip('Roll',.32,[track('Torso','x',[0,.16,.32],[0,.15,0])]));clips.push(new THREE.AnimationClip('Death',.65,[track('Hips','z',[0,.25,.65],[0,.25,1.15]),new THREE.NumberKeyframeTrack('Hips.position[y]',[0,.25,.65],[.78,.6,.3])]));return {scene,animations:clips};
 }
-export function forgeTemplates(){return new Map([...Object.keys(palettes).map(id=>[id,id==='arcanist'?dragonRider():make(id)]),...additionalTemplates(make),...loreTemplates(make)]);}
+export function forgeTemplates(){return new Map([...Object.keys(palettes).map(id=>[id,id==='arcanist'?dragonRider():['sentinel','bulwark'].includes(id)?tailorMotion(id,make(id)):make(id)]),...additionalTemplates(make),...loreTemplates(make)]);}

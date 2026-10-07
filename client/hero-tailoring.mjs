@@ -46,16 +46,20 @@ export function tailorBody(id,{scene,root,torso,m}){
 
 const t=(joint,axis,times,values)=>new THREE.NumberKeyframeTrack(`${joint}.rotation[${axis}]`,times,values);
 export function tailorMotion(id,model){
-  const ranged=['stuart','capheny','elsu','flowborn','hayate'].includes(id),bow=id==='flowborn',caster=['ignis','zata'].includes(id);
-  const gun=ranged&&!bow&&id!=='hayate',holdR=gun?-1.23:bow?-.8:caster?-.25:0,holdL=id==='capheny'||id==='elsu'?-1.05:bow?-1.35:caster?-.2:0;
+  const caster=['ignis','zata','oracle','ilumia','lauriel','liliana'].includes(id),bow=['flowborn','telannas'].includes(id),ranged=caster||bow||['stuart','capheny','elsu','hayate'].includes(id);
+  const gun=['stuart','capheny','elsu'].includes(id),holdR=gun?-1.23:bow?-.8:caster?-.25:0,holdL=id==='stuart'?-1.23:id==='capheny'||id==='elsu'?-1.05:bow?-1.35:caster?-.2:0;
   const holding=[t('RArm','x',[0,2], [holdR,holdR]),t('LArm','x',[0,2],[holdL,holdL]),t('RElbow','x',[0,2],[-.25,-.25]),t('LElbow','x',[0,2],[-.3,-.3])];
   const idle=model.animations.find(a=>a.name==='Idle');idle.tracks.push(...holding);
   const run=model.animations.find(a=>a.name==='Run');if(gun||bow){run.tracks=run.tracks.filter(a=>!/[LR](Arm|Elbow)/.test(a.name));run.tracks.push(...holding.map(a=>a.clone()));}
-  const times=[0,.07,.15,.28,.48];
+  const times=ranged?[0,.12,.20,.32,.48]:[0,.09,.16,.29,.48];
   const tracks=gun?[t('RArm','x',times,[holdR,holdR-.14,holdR,holdR,holdR]),t('LArm','x',times,[holdL,holdL-.08,holdL,holdL,holdL]),t('Torso','x',times,[0,-.06,0,.02,0])]:bow?[t('LArm','x',times,[-1.35,-1.4,-1.4,-1.3,-1.35]),t('RArm','y',times,[0,-.7,-.9,-.2,0]),t('RElbow','x',times,[-.6,-1.3,-1.4,-.3,-.6])]:caster?[t('RArm','x',times,[-.25,-1.4,-1.7,-.5,-.25]),t('LArm','x',times,[-.2,-.7,-1.3,-.4,-.2])]:[t('Torso','y',times,[0,-.65,.7,.2,0]),t('RArm','x',times,[0,-1.7,-.8,.35,0]),t('RArm','z',times,[.16,.7,-1.1,-.1,.16]),t('RElbow','x',times,[-.15,-.8,-.2,-.12,-.15])];
   model.animations=model.animations.filter(a=>!['Sword_Attack','Bow_Shoot','Spell1','Spell2'].includes(a.name));
   const attack=new THREE.AnimationClip(ranged?'Bow_Shoot':'Sword_Attack',.48,tracks);model.animations.push(attack);
   const spell=attack.clone();spell.name='Spell1';model.animations.push(spell);
   const ultimate=attack.clone();ultimate.name='Spell2';ultimate.tracks.forEach(a=>a.times=Float32Array.from(a.times,v=>v*1.6));ultimate.duration=.768;model.animations.push(ultimate);
+  const q=attack.clone();q.name='Spell_Q';model.animations.push(q);
+  const w=new THREE.AnimationClip('Spell_W',.4,[t('LArm','x',[0,.12,.26,.4],[holdL,-1.4,-1.3,holdL]),t('RArm','x',[0,.12,.26,.4],[holdR,-.7,-.7,holdR]),t('Torso','x',[0,.12,.26,.4],[0,-.07,-.05,0])]);model.animations.push(w);
+  const e=caster?new THREE.AnimationClip('Spell_E',.8,[t('LArm','x',[0,.18,.5,.8],[holdL,-2.0,-1.7,holdL]),t('RArm','x',[0,.18,.5,.8],[holdR,-2.0,-1.7,holdR]),t('LArm','z',[0,.18,.5,.8],[0,-.65,-.45,0]),t('RArm','z',[0,.18,.5,.8],[0,.65,.45,0])]):ultimate.clone();e.name='Spell_E';model.animations.push(e);
+  model.animations.push(new THREE.AnimationClip('Dash',.3,[t('Torso','x',[0,.08,.22,.3],[0,.24,.24,0]),t('LLeg','x',[0,.08,.22,.3],[0,-.6,-.4,0]),t('RLeg','x',[0,.08,.22,.3],[0,.6,.4,0]),t('RArm','x',[0,.08,.22,.3],[holdR,holdR+.2,holdR+.2,holdR])]));
   model.scene.userData.weaponPose=gun?'gun':bow?'bow':caster?'cast':'swing';return model;
 }

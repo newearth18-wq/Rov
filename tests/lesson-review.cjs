@@ -1,0 +1,5 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');const s={window:{}};vm.runInNewContext(fs.readFileSync('dist/lesson-review.js','utf8'),s);
+const esc=v=>String(v).replaceAll('&','&amp;').replaceAll('<','&lt;'),d={phase:'finished',lesson:{questions:[{id:'q',prompt:'<img onerror=x>',options:['A','B','C','D'],correct:1,explanation:'เหตุผล'},{id:'missed',prompt:'ข้อไม่ตอบ',options:['A','B','C','D'],correct:0}]},answers:[{stage:'pretest',question_id:'q',answer:0},{stage:'posttest',question_id:'q',answer:1}]};
+const result=s.window.RiftLessonReview.render(d,esc);assert.match(result,/ควรทบทวน/);assert.match(result,/ถูก · B/);assert.match(result,/ยังไม่ได้ตอบ/);assert.match(result,/เหตุผล/);assert.ok(!result.includes('<img'));
+for(const phase of ['waiting','pretest','briefing','play','checkpoint','posttest'])assert.equal(s.window.RiftLessonReview.render({...d,phase},esc),'','no post-review during assessment');
+console.log('Lesson review: individual before/after answers, omissions, explanation, escaped content, and phase restriction.');

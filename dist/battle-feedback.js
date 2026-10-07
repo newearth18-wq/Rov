@@ -13,4 +13,4 @@ damage=function(target,amount,source){const hp=target.hp,shield=target.shield||0
 const feedbackStrike=strike;
 strike=function(p,t){const before=p.attack;const result=feedbackStrike(p,t);if(p.attack>before&&t)battleEvent('sound',p,{sound:weaponSound(p),source:p.id});return result;};
 const feedbackSkill=useSkill;
-useSkill=function(key,actor=null,aim=pointer){const p=actor||game?.player;const ok=feedbackSkill(key,actor,aim);if(ok&&p){const sound=skillSound(p,key);battleEvent('sound',p,{sound,source:p.id});battleEvent('castFlash',p,{life:.55,max:.55,color:sound==='heal'?'#a4ffbf':sound==='fire'?'#ffb66d':sound==='shield'?'#9bddff':sound==='ultimate'?'#ffd587':'#c4e6ff',power:key==='e'?1.5:1});}return ok;};
+useSkill=function(key,actor=null,aim=pointer){const p=actor||game?.player;const ok=feedbackSkill(key,actor,aim);if(ok&&p){p.actionKey=key;const sound=skillSound(p,key);battleEvent('sound',p,{sound,source:p.id});battleEvent('castFlash',p,{life:.55,max:.55,color:sound==='heal'?'#a4ffbf':sound==='fire'?'#ffb66d':sound==='shield'?'#9bddff':sound==='ultimate'?'#ffd587':'#c4e6ff',power:key==='e'?1.5:1});}return ok;};

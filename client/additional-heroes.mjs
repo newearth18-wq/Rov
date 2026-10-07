@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {humanFace} from './human-face.mjs';
 import {tailorBody,tailorMotion} from './hero-tailoring.mjs';
 
 // Rift Arena interpretations of the ten heroes in the user's reference video.
@@ -21,11 +22,8 @@ const material=(c,metalness=0)=>new THREE.MeshStandardMaterial({color:c,roughnes
 function ball(parent,m,x,y,z,sx,sy,sz){return put(parent,new THREE.SphereGeometry(1,12,8),m,x,y,z,sx,sy,sz);}
 function cable(parent,m,points,r=.018){return put(parent,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p))),16,r,6,false),m);}
 function face(head,id,m){
-  head.clear();const female=id==='capheny'||id==='taara',old=id==='ignis',demon=id==='maloch',skin=material(demon?0x8c3f41:id==='zata'?0x968d80:0xc4aa99),hair=material(old||id==='taara'||id==='zata'?0xd6d2c9:id==='capheny'?0x73313a:0x242c35);
-  ball(head,skin,0,.015,0,female?.10:.11,.13,.104);ball(head,hair,0,.075,-.025,.117,.10,.104);ball(head,skin,0,-.006,.104,.017,.033,.018);
-  for(const s of [-1,1]){ball(head,m.dark,s*.039,.02,.101,.018,.009,.008);ball(head,skin,s*.103,.01,0,.025,.044,.018);}
+  humanFace(head,id,m);const female=id==='capheny'||id==='taara',old=id==='ignis',demon=id==='maloch',skin=material(demon?0x8c3f41:0xc4aa99),hair=material(old||id==='taara'||id==='zata'?0xd6d2c9:id==='capheny'?0x73313a:0x242c35);
   if(id==='stuart'||id==='elsu'){ball(head,hair,-.044,.087,.055,.06,.08,.06);const scarf=ball(head,id==='stuart'?m.cloth:m.trim,0,-.12,-.015,.133,.045,.117);}
-  if(female){for(const s of [-1,1]){ball(head,hair,s*.09,.065,-.065,.055,.12,.055);cable(head,hair,[[s*.11,.01,-.085],[s*.14,-.13,-.13],[s*.10,-.29,-.11]],.032);}}
   if(old){ball(head,hair,0,-.06,.071,.089,.105,.055);put(head,new THREE.ConeGeometry(.055,.15,8),hair,0,-.16,.078).rotation.z=Math.PI;}
   if(demon){for(const s of [-1,1])cable(head,m.trim,[[s*.08,.09,-.025],[s*.16,.20,-.05],[s*.20,.37,-.11],[s*.11,.42,-.15]],.027);ball(head,m.glow,0,.003,.108,.095,.012,.015);}
   if(id==='hayate'){ball(head,m.cloth,0,-.06,.071,.102,.057,.047);ball(head,m.cloth,0,.10,-.01,.129,.054,.113);}

@@ -1,11 +1,11 @@
 {
   "name": "rift-arena",
-  "version": "11.0.0",
+  "version": "12.0.0",
   "private": true,
   "description": "Browser MOBA and teacher-led classrooms for 50 learners with editable question banks",
   "scripts": {
     "start": "node server.cjs",
-    "test": "node tests/smoke.cjs && node tests/online.cjs && node tests/classroom.cjs && node tests/mobile.cjs && node tests/combat.cjs && node tests/champions.cjs && node tests/lore.cjs && node tests/lore-render.cjs && node tests/lore-network.cjs && node tests/feel.cjs && node tests/audio.cjs && node tests/art.cjs",
+    "test": "node tests/smoke.cjs && node tests/online.cjs && node tests/classroom.cjs && node tests/mobile.cjs && node tests/combat.cjs && node tests/champions.cjs && node tests/lore.cjs && node tests/lore-render.cjs && node tests/lore-network.cjs && node tests/feel.cjs && node tests/audio.cjs && node tests/art.cjs && node tests/qr.cjs && node tests/lesson-review.cjs",
     "build": "node scripts/build.mjs",
     "db:generate": "drizzle-kit generate",
     "build:client": "node scripts/build-client.mjs"
@@ -18,5 +18,9 @@
     "drizzle-orm": "^0.45.3",
     "esbuild": "^0.25.12",
     "three": "^0.186.1"
+  },
+  "dependencies": {
+    "jsqr": "1.4.0",
+    "qrcode": "1.5.4"
   }
 }

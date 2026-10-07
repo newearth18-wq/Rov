@@ -16,7 +16,8 @@ const assert=require('node:assert/strict');
       poseLoreForm(first,id,{foxForm:true,mounted:8},.4,true);
       assert.equal(first.getObjectByName(form).visible,true,id+' alternate model visible');
       assert.equal(second.getObjectByName(form).visible,false,id+' form is isolated per entity');
-      assert.equal(first.getObjectByName(id==='liliana'?'Hips':'LLeg').visible,false,id+' hidden human parts');
+      if(id==='liliana')assert.equal(first.getObjectByName('Hips').visible,false,id+' hidden human parts');
+      else{assert.equal(first.getObjectByName('LLeg').visible,true,'mounted rider retains legs');assert.equal(first.getObjectByName('LLeg').rotation.x,-.8,'mounted rider sits');assert.equal(first.getObjectByName('LKnee').rotation.x,1.25,'mounted knee bends');}
       first.updateMatrixWorld(true);first.traverse(n=>n.matrixWorld.elements.forEach(v=>assert.ok(Number.isFinite(v),id+' finite alternate pose')));
       poseLoreForm(first,id,{},1,false);assert.equal(first.getObjectByName(form).visible,false,id+' restores default form');
       assert.equal(first.getObjectByName(id==='liliana'?'Hips':'LLeg').visible,true,id+' restores human parts');

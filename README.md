@@ -159,3 +159,14 @@ pnpm db:generate
 - ป้อมทนการโจมตีจากฮีโร่เมื่อไม่มีครีป และเปลี่ยนมาโจมตีผู้ที่ตีฮีโร่ใต้ป้อม ดาเมจป้อมเพิ่มเมื่อยืนรับซ้ำ
 - คอมโบอัลติ Zata และ Flowborn จ่ายมานาครั้งเดียวต่อชุด
 - แนวเล็งสกิลเป็นแถบหรือรูปพัดตามชนิดสกิล และไอคอนสกิลแยกตามฮีโร่
+
+
+## V12: QR joins and classroom review
+
+- Friends: create a room, choose **แสดง QR เข้าห้อง**, then scan with a phone camera or the in-game **สแกน QR เข้าห้อง**. The link pre-fills the six-character code; players enter their name, team and hero before joining.
+- Teachers: create a classroom, choose **แสดง QR ให้นักเรียน**. Students can scan from either the classroom entry screen or the friends screen; the QR selects the correct join form. Links contain only the room type and public room code, never teacher/student tokens.
+- The scanner reads camera frames and uploaded images locally. Camera access starts only after pressing **เปิดกล้อง**; closing, leaving the page or hiding the tab stops all camera tracks. Image selection works without camera access. Only a room link from the same Site is accepted. Native phone cameras can also open these HTTPS links.
+- Classroom waiting screens show the assigned hero, team, arena and short controls checklist. In reflection/finished phases, students compare each before/after answer with the correct option and explanation. These reviews stay hidden during assessments. Teachers can edit any subject bank as before.
+- Human hero faces now have a tapered jaw, layered eyes, eyebrows, nose, mouth and hair. Portraits and battlefield characters still share the same model. Humanoid rigs have weapon-specific attacks, distinct skill poses, smoother blends and a leaning dash. Mounted Volkath retains seated legs. These remain original prototype meshes, not official RoV assets.
+- **วิธีเล่น** contains camera distance and combat-button sizes, stored on this device. Target buttons are separated from the skill buttons.
+- Validation: automated 50-student admission/match/control/report runs for both split and mass modes, actual QR pixel decoding for both link types, invalid-link rejection, camera lifecycle tests including pending permission, individual review tests and local browser join flows. Simulations do not establish performance on 50 physical phones; camera scanning must also be tried on the intended classroom devices.

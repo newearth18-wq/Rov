@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import {humanFace} from './human-face.mjs';
+import {tailorMotion} from './hero-tailoring.mjs';
 const config={ilumia:['oracle',0xe8d8b1,0xd4a64d,0xf5e7d2,0xffdf86],lauriel:['oracle',0xe8d8d7,0xd5ae70,0xebd8eb,0xffd6f5],liliana:['oracle',0xd5e6ed,0x6ca9d7,0xe7f2ff,0x8fcbff],nakroth:['shade',0x963448,0xbcb8c3,0x281c30,0xff4968],telannas:['ranger',0x8a5e9b,0xb9b697,0x483663,0xb8eff4],volkath:['sentinel',0x332c44,0xb77ba5,0x2f142d,0xe468e3]};
 const group=(p,name,x=0,y=0,z=0)=>{const g=new THREE.Group();g.name=name;g.position.set(x,y,z);p.add(g);return g;};
 const put=(p,g,m,x=0,y=0,z=0,sx=1,sy=1,sz=1)=>{const n=new THREE.Mesh(g,m);n.position.set(x,y,z);n.scale.set(sx,sy,sz);p.add(n);return n;};
@@ -6,7 +8,8 @@ const ball=(p,m,x,y,z,sx,sy,sz)=>put(p,new THREE.SphereGeometry(1,12,10),m,x,y,z
 const path=(p,m,points,r=.025)=>put(p,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(v=>new THREE.Vector3(...v))),18,r,6,false),m);
 const mat=color=>new THREE.MeshStandardMaterial({color,roughness:.62});
 function face(head,id,m){head.clear();if(id==='nakroth'||id==='volkath'){ball(head,m.metal,0,.02,0,.105,.14,.1);for(const s of [-1,1]){ball(head,m.glow,s*.04,.01,.1,.028,.009,.015);path(head,m.trim,[[s*.07,.10,0],[s*.12,.18,-.02],[s*.14,.31,-.1]],.02);}ball(head,m.dark,0,-.06,.085,.077,.045,.025);return;}
-  const skin=mat(0xe1b6a4),hair=mat(id==='telannas'?0xc6b4d4:id==='liliana'?0xe5ecf4:0xe1c592);ball(head,skin,0,0,0,.088,.12,.079);ball(head,hair,0,.069,-.033,.096,.095,.082);ball(head,skin,0,-.008,.079,.014,.025,.012);ball(head,mat(0xaf736f),0,-.06,.074,.025,.006,.006);const white=mat(0xfff5eb);for(const s of [-1,1]){ball(head,white,s*.033,.014,.077,.020,.010,.005);ball(head,m.dark,s*.032,.013,.082,.007,.007,.004);path(head,hair,[[s*.065,.07,.055],[s*.04,.065,.073],[s*.01,.04,.079]],.014);path(head,hair,[[s*.081,.067,-.04],[s*.10,-.06,-.042],[s*.087,-.25,-.077]],.027);if(id==='telannas'||id==='liliana'){const ear=put(head,new THREE.ConeGeometry(.046,id==='liliana'?.16:.12,5),hair,s*.09,id==='liliana'?.12:.01,0);ear.rotation.z=s*(id==='liliana'?-.2:-1.1);}}
+  const hair=mat(id==='telannas'?0xc6b4d4:id==='liliana'?0xe5ecf4:0xe1c592);
+  humanFace(head,id,m);for(const side of [-1,1])if(id==='telannas'||id==='liliana'){const ear=put(head,new THREE.ConeGeometry(.035,id==='liliana'?.16:.12,5),hair,side*.09,id==='liliana'?.12:.01,0);ear.rotation.z=side*(id==='liliana'?-.2:-1.1);}
   if(id==='ilumia'||id==='telannas'){const crown=group(head,'Crown');for(let i=-2;i<=2;i++)put(crown,new THREE.ConeGeometry(.016,.08+(2-Math.abs(i))*.025,4),m.trim,i*.035,.14,.03);ball(crown,m.glow,0,.13,.085,.02,.033,.015);}
 }
 function wings(torso,m){for(const s of [-1,1])for(let j=0;j<3;j++){const wing=group(torso,`AngelWing${s}_${j}`,s*.12,.3-j*.1,-.1);wing.rotation.z=s*(.17+j*.3);path(wing,m.trim,[[0,0,0],[s*.3,.26,0],[s*.6,.38,-.04]],.017);for(let n=0;n<6;n++){const feather=ball(wing,m.cloth,s*(.18+n*.072),.17+n*.035,-.01,.055,.22-n*.01,.019);feather.rotation.z=-s*.55;}}}
@@ -39,9 +42,9 @@ export function loreTemplates(factory){return Object.entries(config).map(([id,[b
   model.scene.userData.forms=id==='liliana'?['human','fox']:id==='volkath'?['foot','mounted']:[];
   // Reuse the body rig; ranged characters hold their arms forward when casting.
   if(['ilumia','lauriel','liliana','telannas'].includes(id)){const attack=model.animations.find(c=>c.name==='Bow_Shoot');if(attack)attack.name='Staff_Attack';}
-  return [id,model];
+  return [id,tailorMotion(id,model)];
 });}
 export function poseLoreForm(object,id,{foxForm=false,mounted=0}={},time=0,moving=false){
   if(id==='liliana'){const fox=object.getObjectByName('FoxForm'),hips=object.getObjectByName('Hips');if(fox){fox.visible=!!foxForm;hips.visible=!foxForm;fox.getObjectByName('NineTails').rotation.y=Math.sin(time*2)*.08;if(moving)for(const s of [-1,1])for(const rear of [0,1])fox.getObjectByName(`FoxLeg${s}_${rear}`).rotation.x=Math.sin(time*12+s+rear*2)*.5;}}
-  if(id==='volkath'){const horse=object.getObjectByName('MountedForm');if(horse){horse.visible=mounted>0;object.getObjectByName('Body').position.y=mounted>0?.48:0;for(const name of ['LLeg','RLeg'])object.getObjectByName(name).visible=!(mounted>0);if(moving)for(const s of [-1,1])for(const rear of [0,1])horse.getObjectByName(`HorseLeg${s}_${rear}`).rotation.x=Math.sin(time*11+s+rear*2)*.45;}}
+  if(id==='volkath'){const horse=object.getObjectByName('MountedForm');if(horse){horse.visible=mounted>0;object.getObjectByName('Body').position.y=mounted>0?.48:0;for(const name of ['LLeg','RLeg']){const leg=object.getObjectByName(name);leg.visible=true;if(mounted>0){leg.rotation.x=-.8;leg.rotation.z=name==='LLeg'?-.32:.32;object.getObjectByName(name==='LLeg'?'LKnee':'RKnee').rotation.x=1.25;}else{leg.rotation.z=0;object.getObjectByName(name==='LLeg'?'LKnee':'RKnee').rotation.x=0;}}if(moving)for(const s of [-1,1])for(const rear of [0,1])horse.getObjectByName(`HorseLeg${s}_${rear}`).rotation.x=Math.sin(time*11+s+rear*2)*.45;}}
 }
