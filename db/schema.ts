@@ -43,3 +43,8 @@ export const lessonAnswers = sqliteTable('lesson_answers', {
   round: integer('round').notNull(), questionId: text('question_id').notNull(), answer: integer('answer').notNull(),
   correct: integer('correct').notNull(), answeredAt: integer('answered_at').notNull(),
 }, t=>[uniqueIndex('idx_lesson_answer_once').on(t.studentId,t.stage,t.round,t.questionId),index('idx_answers_class').on(t.classId,t.stage)]);
+export const classTeamPlans = sqliteTable('class_team_plans', {
+  id: text('id').primaryKey(), classId: text('class_id').notNull().references(()=>classrooms.id),
+  arena: integer('arena').notNull(), team: integer('team').notNull(), plan: text('plan').notNull(),
+  author: text('author').notNull(), revision: integer('revision').notNull().default(1), updatedAt: integer('updated_at').notNull(),
+}, t=>[uniqueIndex('idx_class_team_plan').on(t.classId,t.arena,t.team)]);

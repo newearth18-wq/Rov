@@ -20,23 +20,23 @@ pollRoom=async function(){if(!net.session?.classroom)return ordinaryRoomPoll();i
   const input={...localInput(),active:!document.hidden};const state=session.host&&game&&!document.hidden?serializeMatch():undefined;
   const data=await lessonRequest(`classes/${session.code}/frame`,'POST',{input,state},session.token);if(net.session!==session)return;const wasHost=session.host;session.host=data.host;session.capacity=data.capacity;education.details={...education.details,...data.classroom};
   if(data.state&&(!session.host||!wasHost)){acceptSnapshot(data.state);if(session.host)for(const e of game.entities.filter(e=>e.remoteHuman))e.control={move:{x:0,y:0},attack:false};}
-  if(session.host&&game)applyRemoteInputs(data.members);net.lastSuccess=Date.now();net.lastRevision=data.revision;
+  if(session.host&&game)applyRemoteInputs(data.members);net.lastSuccess=Date.now();education.linkLost=false;window.riftClassConnection?.(true);net.lastRevision=data.revision;
   if(game){game.paused=data.classroom.phase!=='play'||data.classroom.paused;game.education=true;game.capacity=data.capacity;}
   $('connectionBadge').textContent='ห้องเรียน '+session.code+' · สนาม '+(session.arena+1);window.riftLessonChanged?.(data.classroom);
-}catch(e){$('connectionBadge').textContent='กำลังเชื่อมต่อห้องเรียนใหม่';if(e.status!==409)window.riftLessonError?.(e.message);}finally{net.busy=false;}};
+}catch(e){if(!e.status)window.riftClassConnection?.(false);$('connectionBadge').textContent='กำลังเชื่อมต่อห้องเรียนใหม่';if(e.status!==409)window.riftLessonError?.(e.message);}finally{net.busy=false;}};
 const ordinaryPause=pause;
 pause=function(value){if(!net.session?.classroom)return ordinaryPause(value);net.localPause=value;keys.clear();joystick={x:0,y:0};$('joystick').firstElementChild.style.transform='';$('pauseOverlay').hidden=!value;$('pauseMessage').textContent='คุณพักอยู่ · ครูเป็นผู้ควบคุมช่วงกิจกรรมของทั้งห้อง';};
 const ordinaryUpdate=update;
-update=function(dt){if(game&&net.session?.classroom&&education.details){game.paused=education.details.phase!=='play'||education.details.paused;if(document.body.classList.contains('education-open')){keys.clear();joystick={x:0,y:0};}}return ordinaryUpdate(dt);};
+update=function(dt){if(game&&net.session?.classroom&&education.details){if(net.lastSuccess&&Date.now()-net.lastSuccess>7000)window.riftClassConnection?.(false);game.paused=education.details.phase!=='play'||education.details.paused||education.linkLost;if(document.body.classList.contains('education-open')){keys.clear();joystick={x:0,y:0};}}return ordinaryUpdate(dt);};
 const ordinaryInput=localInput;
-localInput=function(){const input=ordinaryInput();if(net.session?.classroom&&document.body.classList.contains('education-open')){input.move={x:0,y:0};input.attack=false;}return input;};
+localInput=function(){const input=ordinaryInput();if(net.session?.classroom&&(document.body.classList.contains('education-open')||education.linkLost)){input.move={x:0,y:0};input.attack=false;if(education.linkLost)input.commands=[];}return input;};
 const ordinaryControlsBlocked=controlsBlocked;
-controlsBlocked=function(){return ordinaryControlsBlocked()||net.session?.classroom&&document.body.classList.contains('education-open');};
+controlsBlocked=function(){return ordinaryControlsBlocked()||net.session?.classroom&&(document.body.classList.contains('education-open')||education.linkLost);};
 async function connectClassMatch(){if(!education.session||education.connecting||net.session?.classroom)return;education.connecting=true;try{
   const s=education.session,data=await lessonRequest(`classes/${s.code}/match`);net.mode='online';net.session={...s,host:data.host,classroom:true,capacity:data.capacity};net.seq=Math.max(net.seq,data.playerSeq||0);net.pending=[];net.localPause=false;net.commandId=0;
   try{sessionStorage.removeItem(ROOM_STORAGE);}catch{}
   if(data.state){acceptSnapshot(data.state);net.commandId=Math.max(0,data.state.ack?.[s.playerId]||0);}else if(data.host){originals.start();configureRoster(data.members);await lessonRequest(`classes/${s.code}/match-start`,'POST',{state:serializeMatch()});}
-  education.details={...education.details,...data.classroom};if(game){game.education=true;game.capacity=data.capacity;}net.lastPoll=0;$('connectionBadge').hidden=false;
+  education.details={...education.details,...data.classroom};if(game){game.education=true;game.capacity=data.capacity;}net.lastSuccess=Date.now();net.lastPoll=0;education.linkLost=false;$('connectionBadge').hidden=false;
 }catch(e){window.riftLessonError?.(e.message);net.session=null;}finally{education.connecting=false;}}
 function detachClassMatch(){if(net.session?.classroom){net.session=null;net.pending=[];net.localPause=false;originals.lobby();}}
 

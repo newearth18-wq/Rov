@@ -8,3 +8,4 @@ dist/.openai/
 
 /dist/renderer3d.js
 /dist/qr-code.js
+/dist/classroom-tools.js
