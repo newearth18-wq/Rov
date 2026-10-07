@@ -4,7 +4,7 @@ function rememberClassSession(persist=true){
   education.remember=persist;try{sessionStorage.setItem('rift.classStudent',JSON.stringify(education.session));if(persist)localStorage.setItem('rift.classStudent',JSON.stringify(education.session));else localStorage.removeItem('rift.classStudent');}catch{}
 }
 function clearClassSession(){
-  const id=education.session?.playerId;education.session=null;education.pending=[];education.pendingOwner=null;try{sessionStorage.removeItem('rift.classStudent');localStorage.removeItem('rift.classStudent');if(id){localStorage.removeItem('rift.classAnswers:'+id);localStorage.removeItem('rift.playAnswer:'+id);}window.RiftSnow?.stop();window.RiftLearningPlay?.stop();sessionStorage.setItem('rift.classActive','0');}catch{}detachClassMatch();
+  const id=education.session?.playerId;education.session=null;education.pending=[];education.pendingOwner=null;try{sessionStorage.removeItem('rift.classStudent');localStorage.removeItem('rift.classStudent');if(id){localStorage.removeItem('rift.classAnswers:'+id);localStorage.removeItem('rift.playAnswer:'+id);}window.RiftWaitingMap?.stop();window.RiftSnow?.stop();window.RiftLearningPlay?.stop();sessionStorage.setItem('rift.classActive','0');}catch{}detachClassMatch();
 }
 function classPendingAnswers(){
   const id=education.session?.playerId;if(!id)return [];

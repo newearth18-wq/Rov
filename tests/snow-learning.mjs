@@ -35,6 +35,27 @@ for(const mode of ['split','mass']){
  await control(room,'finish');assert.equal((await call(`classes/${room.code}/snow-frame`,'POST',makeInput(4),p.token)).status,409);assert.equal((await call(`classes/${room.code}/play-answer`,'POST',value,p.token)).status,409);
  console.log(`PASS snow ${mode}: 50 admissions, arena isolation, authoritative inputs, eight concurrent retries rewarded once, wrong feedback, rate limit, movement/paused state, recovery and reports.`);
 }
+// Partly occupied rooms start immediately; preview and bot records must not expose credentials or inflate grades.
+for(const mode of ['split','mass']){
+ const room=await ok('classes','POST',{bankId:bank.id,mode,minutes:8,activity:'snow'},teacher.token);
+ assert.equal((await call(`classes/${room.code}/control`,'POST',{action:'start'},teacher.token)).status,400);
+ const person=await ok(`classes/${room.code}/join`,'POST',{name:'ผู้เล่นจริง',hero:'telannas'});
+ const waiting=await ok(`classes/${room.code}`,'GET',undefined,person.token);
+ assert.equal(waiting.waitingMembers.length,1);assert.equal(waiting.waitingMembers[0].hero,'telannas');assert.ok(!('token' in waiting.waitingMembers[0]));assert.ok(!('input' in waiting.waitingMembers[0]));
+ assert.equal((await call(`classes/${room.code}/control`,'POST',{action:'start'},person.token)).status,401);
+ const start=await control(room,'start');assert.equal(start.phase,'play');const deadline=start.deadline;
+ assert.equal((await call(`classes/${room.code}/control`,'POST',{action:'start'},teacher.token)).status,409);
+ assert.equal((await ok(`classes/${room.code}`,'GET',undefined,person.token)).deadline,deadline,'duplicate start must not reset timer');
+ assert.equal((await call(`classes/${room.code}/join`,'POST',{name:'late',hero:'sentinel'})).status,409);
+ const f=await ok(`classes/${room.code}/snow-frame`,'POST',makeInput(1),person.token),capacity=mode==='mass'?50:10;
+ assert.equal(f.state.players.length,capacity);assert.equal(f.state.players.filter(p=>p.bot).length,capacity-1);assert.equal(f.state.players.filter(p=>p.zombie).length,1);assert.equal(f.state.players.find(p=>p.id===person.playerId).zombie,false);
+ assert.equal(new Set(f.state.players.map(p=>p.id)).size,capacity);assert.equal(f.state.players.find(p=>p.id===person.playerId).hero,'telannas');
+ let stepped={...f.state,time:9,updatedAt:0};const before=stepped.players.filter(p=>p.bot).map(p=>[p.x,p.y]);stepped=stepSnow(stepped,[],200);assert.ok(stepped.players.filter(p=>p.bot).some((p,i)=>p.x!==before[i][0]||p.y!==before[i][1]),'bots really move');
+ const bot=stepped.players.find(p=>p.bot&&!p.zombie);assert.ok(bot.credits>1000,'survivor bots refill energy');
+ const report=await ok(`classes/${room.code}/teacher`,'GET',undefined,teacher.token);assert.equal(report.students.length,1);assert.equal(report.students[0].scores.length,0);
+ const recovery=await ok(`classes/${room.code}/snow-frame`,'POST',makeInput(2),person.token);assert.equal(recovery.state.players.length,capacity,'reconnect cannot duplicate bots');
+ console.log(`PASS partial snow ${mode}: one real learner starts, exact bot fill, safe lobby roster, authority, moving AI, no bot grades, idempotent start and reconnect.`);
+}
 const moba=await ok('classes','POST',{bankId:bank.id,mode:'split',minutes:8,activity:'moba',energyQuestions:true},teacher.token),p=await ok(`classes/${moba.code}/join`,'POST',{name:'MOBA',hero:'sentinel'});
 for(let i=0;i<3;i++)await control(moba,'next');await ok(`classes/${moba.code}/frame`,'POST',{input:makeInput(1)},p.token);
 await DB.prepare('UPDATE class_play_progress SET moved_at=? WHERE student_id=?').bind(Date.now()-500,p.playerId).run();const mobaFrame=await ok(`classes/${moba.code}/frame`,'POST',{input:makeInput(2)},p.token);assert.ok(mobaFrame.members[0].resources.energy<1000);const energy=mobaFrame.members[0].resources.energy;
@@ -43,6 +64,7 @@ const {sandbox,run}=require('./smoke.cjs');sandbox.setInterval=()=>0;sandbox.Abo
 sandbox.document.createElement=()=>({style:{},dataset:{},hidden:false,classList:{toggle(){}},innerHTML:''});sandbox.document.body.appendChild=()=>{};
 const fs=require('node:fs'),vm=require('node:vm');for(const file of ['battle-feedback.js','network.js','mobile.js','classroom-network.js','learning-play.js'])vm.runInContext(fs.readFileSync(new URL('../dist/'+file,import.meta.url),'utf8').replace('void restoreRoom();',''),sandbox);
 sandbox.classSession={...p,host:true,classroom:true};sandbox.classMembers=mobaFrame.members;run('net.session=classSession;net.mode="online";originals.start();configureRoster(classMembers);education.details={phase:"play",energyQuestions:true};game.player.lessonEnergy=0;const before=game.player.x;move(game.player,game.player.x+200,game.player.y,.5);');assert.equal(run('game.player.x'),run('before'));run('game.player.lessonEnergy=100;move(game.player,game.player.x+200,game.player.y,.5)');assert.ok(run('game.player.x>before'),'refilled energy unlocks actual MOBA movement');
+for(const capacity of [10,50]){run(`net.session.capacity=${capacity};originals.start();configureRoster(classMembers);`);assert.equal(run('game.entities.filter(e=>e.type==="hero").length'),capacity);assert.equal(run('game.entities.filter(e=>e.type==="hero"&&!e.clientId).length'),capacity-1);}
 let snow=makeSnow([{id:'a',name:'a',hero:'sentinel'},{id:'b',name:'b',hero:'sentinel'}],0);snow.players[0].x=200;snow.players[0].y=110;snow.players[1].x=300;snow.players[1].y=110;snow.players.forEach(p=>p.immune=0);snow.players[0].hp=1;snow.time=2;
 const members=[{id:'a',seen_at:200,input:JSON.stringify({move:{x:1,y:0}}),credits:0,ammo:0},{id:'b',seen_at:200,input:JSON.stringify({move:{x:0,y:0},attack:true,aim:{x:200,y:110}}),credits:0,ammo:6}];const hit=stepSnow(snow,members,200);assert.equal(hit.players[0].x,200,'zero energy stops survivor');assert.equal(hit.players[0].zombie,true,'snowball hit converts a survivor');assert.equal(hit.finished,true);
 assert.ok(SNOW_WORLD.obstacles.length);DB.close();console.log('PASS MOBA: movement draws from server-held question rewards, exhausted movement blocked, recharge restores it. PASS snow collision, role conversion and finish.');
