@@ -1,0 +1,30 @@
+/* Landscape controls leave the centre of the field open. */
+.playing .player-hud{width:286px!important;height:214px;bottom:max(26px,env(safe-area-inset-bottom))!important}
+.playing .ability-row button{width:62px;height:62px;min-width:62px;min-height:62px;border:2px solid #8dbacd88;background:radial-gradient(circle at 40% 25%,#4776a8,#122641 68%,#09243b);box-shadow:inset 0 0 0 3px #16324c,0 2px 5px #0006}
+.playing .ability-row button>span svg{width:34px;height:34px;filter:drop-shadow(0 0 4px #96dfff88)}
+.playing .ability-row b{position:absolute;left:-12px;right:-12px;bottom:-16px;font-size:10px!important;line-height:1.2;text-shadow:0 1px 3px #001226,0 1px 4px #001226;white-space:nowrap}
+.playing .ability-row [data-action=attack]{width:82px;height:82px;min-width:82px;min-height:82px;right:0;bottom:27px;background:radial-gradient(circle at 35% 25%,#527bb0,#183354 70%);border-color:#b1cfe4}
+.playing .ability-row [data-action=attack]>span svg{width:42px;height:42px}
+.playing .ability-row [data-action=q]{right:96px;bottom:25px}
+.playing .ability-row [data-action=w]{right:83px;bottom:102px;width:62px;height:62px}
+.playing .ability-row [data-action=e]{right:8px;bottom:141px;width:62px;height:62px;border-color:#e0bb70;background:radial-gradient(circle at 35% 25%,#916b38,#3c3042 75%)}
+.playing .ability-row [data-glyph=flame],.playing .ability-row [data-glyph=gun]{background:radial-gradient(circle at 35% 25%,#b18b44,#634127 42%,#27213c 85%)}
+.playing .ability-row [data-glyph=pulse],.playing .ability-row [data-glyph=shield]{background:radial-gradient(circle at 35% 25%,#66a99e,#215464 52%,#142d4d 85%)}
+.playing .ability-row [data-glyph=wings],.playing .ability-row [data-glyph=star]{background:radial-gradient(circle at 35% 25%,#9f86c8,#4c437b 52%,#132a4c 85%)}
+.playing .ability-row button.cooldown>span{opacity:.25}
+.playing .target-button,.playing #heroTargetBtn,.playing #towerTargetBtn{width:48px;height:48px;min-width:48px;min-height:48px;right:177px;font-size:11px;background:#0b264589}
+.playing #heroTargetBtn{bottom:62px}.playing #towerTargetBtn{bottom:117px}
+.playing .health-line,.playing .mana-track,.playing .xp-track{opacity:.55}
+.playing .utility-tray{left:48%;bottom:max(24px,env(safe-area-inset-bottom));gap:8px;align-items:center}
+.utility-tray button{position:relative;width:44px;height:44px;min-height:44px;border:1px solid #a3d6dd88;background:radial-gradient(circle at 40% 25%,#347cba,#183963 75%)}
+.utility-tray button[data-action=recovery]{background:radial-gradient(circle at 40% 25%,#77c881,#2c604d 65%,#23364a)}
+.utility-tray button[data-action=flicker]{background:radial-gradient(circle at 40% 25%,#ac77df,#54367b 65%,#26314e)}
+.utility-tray b{position:absolute;bottom:-15px;left:-8px;right:-8px;font-size:10px;white-space:nowrap;text-shadow:0 1px 3px #000}
+.utility-tray i{display:none}.utility-tray .cooldown i{position:absolute;inset:0;border-radius:50%;display:grid;place-items:center;background:#081a2ecc;color:#eee;font:700 17px 'Chakra Petch';font-style:normal}
+.playing #joystick{width:106px;height:106px;border-color:#89b6dc55;background:radial-gradient(circle,#5283b215,#234a7040)}
+.playing #joystick div{left:30px;top:30px;width:42px;height:42px;background:radial-gradient(circle at 35% 25%,#d7e4f0ab,#7195b455)}
+.playing .scorebar{min-width:160px;top:39px}.playing .team strong{font-size:18px}.playing .clock span{font-size:12px}
+@media(max-height:550px) and (min-width:650px){.playing .player-hud{transform:scale(calc(.93 * var(--rift-control-size,1)))!important}.playing .header-actions button{min-height:30px;font-size:10px;padding:4px 6px}.playing .utility-tray{bottom:24px}}
+@media(max-width:649px){.playing .utility-tray{left:38%;bottom:225px}.playing .player-hud{transform:scale(calc(.9 * var(--rift-control-size,1)))!important}}
+
+.playing .player-hud,.playing .utility-tray{text-size-adjust:100%;-webkit-text-size-adjust:100%}

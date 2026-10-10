@@ -17,3 +17,11 @@ run('const dashButton=document.querySelectorAll("[data-action]").find(b=>b.datas
 assert.ok(run('game.player.x>dashStartX && !skillAim && game.player.cd.w>0'),'drag-release casts dash and clears preview');
 run('game.player.cd.w=0;const cancelX=game.player.x;dashButton.onpointerdown({pointerId:13,clientX:100,clientY:100,preventDefault(){}});dashButton.onpointercancel()');assert.ok(run('game.player.x===cancelX&&game.player.cd.w===0&&!skillAim'),'cancelled skill consumes no cooldown');
 console.log('PASS: mobile projection/input alignment, following camera, overview, manual dash direction, portrait renderer, hero presentation, held attack/release, drag skill/cancel.');
+
+run('const mapStartX=game.player.x,mapStartY=game.player.y;let mapConsumed=false;canvas.setPointerCapture=()=>{};canvas.listeners.pointerdown({clientX:80,clientY:80,pointerId:44,preventDefault(){},stopImmediatePropagation(){mapConsumed=true;}});');
+assert.ok(run('mapConsumed&&camera.peek&&Number.isFinite(camera.peek.x)&&Number.isFinite(camera.peek.y)'),'minimap press consumes walk and creates camera peek');
+run('canvas.listeners.pointermove({clientX:2000,clientY:-100,pointerId:44,stopImmediatePropagation(){}});');
+assert.ok(run('camera.peek.x===WIDTH-45&&camera.peek.y===45'),'peek clamps outside map during drag');
+run('canvas.listeners.pointerup({pointerId:44});');
+assert.ok(run('camera.peek===null&&game.player.x===mapStartX&&game.player.y===mapStartY'),'release returns camera and never moves hero');
+console.log('PASS: minimap drag pans without walk commands, bounds clamp, release returns to hero.');

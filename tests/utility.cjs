@@ -1,0 +1,16 @@
+const assert=require('node:assert/strict'),{run}=require('./smoke.cjs');
+run('startGame();game.player.x=700;game.player.y=500;game.player.hp=game.player.maxHp*.5;game.player.mana=100;');
+const hp=run('game.player.hp'),mana=run('game.player.mana');
+assert.equal(run('useSkill("recovery")'),true);
+assert.equal(run('game.player.hp'),hp+run('game.player.maxHp*.18'));
+assert.equal(run('game.player.mana'),mana+run('game.player.maxMana*.15'));
+assert.equal(run('useSkill("recovery")'),false,'cannot spam recovery');
+run('game.paused=true;');assert.equal(run('useSkill("flicker")'),false,'paused match cannot blink');
+run('game.paused=false;');assert.equal(run('useSkill("flicker",null,{x:900,y:500,manual:true})'),true);
+assert.equal(run('game.player.x'),860);assert.equal(run('game.player.y'),500);
+assert.equal(run('useSkill("flicker")'),false,'blink has independent cooldown');
+run('game.time=121;game.player.x=350;game.player.y=360;');
+assert.equal(run('useSkill("flicker",null,{x:420,y:360,manual:true})'),true);
+assert.ok(run('OBSTACLES.every(o=>distance(game.player,o)>=o.radius+game.player.radius-.01)'),'blink cannot finish inside terrain');
+run('game.player.dead=true;');assert.equal(run('useSkill("recovery")'),false,'dead hero cannot heal');
+console.log('PASS: recovery amounts, cooldowns, pause/death gates, blink direction and collision-safe landing.');
