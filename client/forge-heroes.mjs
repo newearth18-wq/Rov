@@ -4,6 +4,7 @@ import {additionalTemplates} from './additional-heroes.mjs';
 import {loreTemplates} from './lore-heroes.mjs';
 import {humanFace} from './human-face.mjs';
 import {tailorBody,tailorMotion} from './hero-tailoring.mjs';
+import {finishHero} from './hero-finish.mjs';
 
 // Original articulated character meshes. Coordinates are metres; +Z is the face.
 // Geometry is shared by clones, while every character has independent animation state.
@@ -99,6 +100,7 @@ function make(id,p=palettes[id],decorate=null){
   if(!decorate&&['ranger','oracle','shade'].includes(id))tailorBody({ranger:'flowborn',oracle:'ignis',shade:'hayate'}[id],{scene,root,torso,m});
   if(['ranger','oracle','shade'].includes(id)&&!decorate)humanFace(head,id,m);
   if(decorate)decorate({scene,root,torso,head,m});
+  finishHero(scene.userData.hero||id,{scene,torso,m});
   mergePart(scene);scene.updateMatrixWorld(true);scene.userData.ground=new THREE.Box3().setFromObject(scene.getObjectByName('LFoot')).min.y;scene.userData.height=new THREE.Box3().setFromObject(head).max.y-scene.userData.ground;
   const track=(node,axis,times,values)=>new THREE.NumberKeyframeTrack(`${node}.rotation[${axis}]`,times,values);
   const clips=[],idle=new THREE.AnimationClip('Idle',2.4,[track('Torso','x',[0,1.2,2.4],[.015,-.018,.015]),track('LArm','z',[0,1.2,2.4],[-.16,-.20,-.16]),track('RArm','z',[0,1.2,2.4],[.16,.20,.16])]);clips.push(idle);

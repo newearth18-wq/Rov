@@ -1,0 +1,10 @@
+'use strict';
+// Original illustrated skill emblems: layered enamel, metal and light, keyed to each ability.
+function skillArtwork(glyph,key){
+  const palette={flame:['#ffba4d','#a22d26'],blade:['#afdcff','#354b93'],wings:['#ffe4fd','#8550ba'],shield:['#96f4e3','#206c80'],pulse:['#a3ffe0','#22556b'],dash:['#afdcff','#3d469d'],star:['#d1b7ff','#7440a0'],vortex:['#b1cfff','#4933a0'],bow:['#d8ffd5','#426968'],shot:['#ffc381','#953d36'],gun:['#ffc381','#953d36'],hammer:['#ffdf9a','#675336'],sensor:['#a0f5ea','#246761'],sight:['#a0f5ea','#246761']}[glyph]||['#c1e4ff','#36517e'];
+  const prefix='skill-'+key,path=heroIconPaths[glyph]||heroIconPaths.star;
+  return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><radialGradient id="'+prefix+'bg"><stop stop-color="'+palette[1]+'"/><stop offset="1" stop-color="#070c23"/></radialGradient><linearGradient id="'+prefix+'metal" x2=".4" y2="1"><stop stop-color="#ffffff"/><stop offset=".45" stop-color="'+palette[0]+'"/><stop offset="1" stop-color="'+palette[1]+'"/></linearGradient></defs><circle cx="32" cy="32" r="31" fill="url(#'+prefix+'bg)"/><path d="M8 46 52 8M12 54 56 16M4 32 32 4" stroke="'+palette[0]+'" opacity=".18" stroke-width="3"/><circle cx="32" cy="32" r="23" fill="none" stroke="'+palette[0]+'" opacity=".16"/><g transform="translate(10 10) scale(1.38)"><path d="'+path+'" fill="none" stroke="'+palette[1]+'" stroke-width="6" stroke-linejoin="round"/><path d="'+path+'" fill="none" stroke="url(#'+prefix+'metal)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></g><path d="m46 12 1 4 4 1-4 1-1 4-1-4-4-1 4-1z" fill="'+palette[0]+'"/><circle cx="32" cy="32" r="30" fill="none" stroke="'+palette[0]+'" opacity=".4"/></svg>';
+}
+const artworkChoose=chooseHero;
+chooseHero=function(id){artworkChoose(id);for(const key of ['q','w','e']){const button=document.querySelector('[data-action="'+key+'"]');button.querySelector('span').innerHTML=skillArtwork(button.dataset.glyph,key);button.classList.add('illustrated');}};
+chooseHero(selected.id);

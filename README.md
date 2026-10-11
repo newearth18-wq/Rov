@@ -4,7 +4,7 @@
 
 โหมดห้องเรียนเลือกได้ทั้ง 5 สนาม สนามละ 10 คน และสนามเดียว 50 คน มีคำถามก่อน–หลังเรียน คำถามระหว่างเกม การพักทั้งห้อง สะท้อนคิด และรายงาน CSV อ่านขั้นตอนใน [คู่มือครู](CLASSROOM.md) ชุดตัวอย่าง 8 กลุ่มวิชาเป็นเนื้อหาเริ่มต้นให้ครูปรับ ไม่ใช่ชุดครอบคลุมหลักสูตรทุกระดับ
 
-V18 ปรับสนาม แสง เงาตัวละครและเอฟเฟกต์ กล้องเห็นสนามกว้างขึ้น แผนที่เล็กมีรูปฮีโร่และลากเพื่อดูพื้นที่ได้ ปล่อยแล้วกลับมาตามตัวละคร ปุ่มต่อสู้เรียงเป็นวง พร้อมปุ่มฟื้นฟูเลือด/มานา (R, 60 วินาที) และวาร์ประยะสั้น (F, 120 วินาที) ใช้คำสั่งเดียวกันทั้งเล่นกับบอต เพื่อน และห้องเรียน
+V19 ปรับสนาม แสง เงาตัวละครและเอฟเฟกต์ กล้องเห็นสนามกว้างขึ้น แผนที่เล็กมีรูปฮีโร่และลากเพื่อดูพื้นที่ได้ ปล่อยแล้วกลับมาตามตัวละคร ปุ่มต่อสู้เรียงเป็นวง พร้อมปุ่มฟื้นฟูเลือด/มานา (R, 60 วินาที) และวาร์ประยะสั้น (F, 120 วินาที) ใช้คำสั่งเดียวกันทั้งเล่นกับบอต เพื่อน และห้องเรียน
 
 V16 เปลี่ยนหน้ารอเป็นแมพพร้อมฮีโร่และชื่อผู้เล่น แสดงบอตที่จะเติม และมีปุ่มครู “เริ่มเกมและเติมบอต” เริ่มได้ตั้งแต่นักเรียน 1 คน โดยข้ามช่วงก่อนเรียนที่ยังไม่จบได้ ระบบเติมครบ 10 หรือ 50 ตัวในสนามที่มีนักเรียน ทั้ง MOBA และหิมะ บอตไม่ใช้ที่นั่งนักเรียนและไม่รวมในคะแนน ห้องเล่นกับเพื่อนใช้แมพรอด้วย
 
@@ -187,3 +187,5 @@ pnpm db:generate
 - Teacher and student entry are separate. **แก้ไข / เพิ่มชุดคำถาม** opens the full bank editor, with a direct return to room creation. Existing rooms remain available beside the short form.
 - Teacher loading failures show a retry button and a readable message. Classroom requests use an AbortController timer rather than requiring AbortSignal.timeout; plain bank data also has a structuredClone fallback.
 - Validation: local browser creation with a blank room name, automatic QR display, QR image decoding into the student form, a student joining the created room, bank editor navigation, classroom API regression tests and the Worker build.
+
+V19: closer mobile battle camera, original enamel skill artwork, sculpted costume accents shared by portraits and matches, animated Lauriel wings, river flora, rune rings and projectile cores, compact team portraits with respawn timers. Classroom HUD keeps its lesson space.

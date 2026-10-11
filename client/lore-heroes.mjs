@@ -45,6 +45,7 @@ export function loreTemplates(factory){return Object.entries(config).map(([id,[b
   return [id,tailorMotion(id,model)];
 });}
 export function poseLoreForm(object,id,{foxForm=false,mounted=0}={},time=0,moving=false){
+  if(id==='lauriel')for(const side of [-1,1])for(let j=0;j<3;j++){const wing=object.getObjectByName(`AngelWing${side}_${j}`);if(wing)wing.rotation.z=side*(.17+j*.3)+Math.sin(time*(moving?7:2)+j*.65)*.045;}
   if(id==='liliana'){const fox=object.getObjectByName('FoxForm'),hips=object.getObjectByName('Hips');if(fox){fox.visible=!!foxForm;hips.visible=!foxForm;fox.getObjectByName('NineTails').rotation.y=Math.sin(time*2)*.08;if(moving)for(const s of [-1,1])for(const rear of [0,1])fox.getObjectByName(`FoxLeg${s}_${rear}`).rotation.x=Math.sin(time*12+s+rear*2)*.5;}}
   if(id==='volkath'){const horse=object.getObjectByName('MountedForm');if(horse){horse.visible=mounted>0;object.getObjectByName('Body').position.y=mounted>0?.48:0;for(const name of ['LLeg','RLeg']){const leg=object.getObjectByName(name);leg.visible=true;if(mounted>0){leg.rotation.x=-.8;leg.rotation.z=name==='LLeg'?-.32:.32;object.getObjectByName(name==='LLeg'?'LKnee':'RKnee').rotation.x=1.25;}else{leg.rotation.z=0;object.getObjectByName(name==='LLeg'?'LKnee':'RKnee').rotation.x=0;}}if(moving)for(const s of [-1,1])for(const rear of [0,1])horse.getObjectByName(`HorseLeg${s}_${rear}`).rotation.x=Math.sin(time*11+s+rear*2)*.45;}}
 }

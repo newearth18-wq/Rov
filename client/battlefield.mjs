@@ -38,10 +38,12 @@ export function buildBattlefield(scene,routes,obstacles,bushes){
   const roadMat=new THREE.MeshStandardMaterial({map:surface('stone'),color:0x9babb6,roughness:.95,side:THREE.DoubleSide});
   for(const route of routes){ribbon(scene,route,.99,dirtMat,.01);ribbon(scene,route,.84,dark,.024);ribbon(scene,route,.77,roadMat,.032);}
   const riverPoints=[[620,-200],[740,240],[730,520],[870,760],[950,1200]];
-  ribbon(scene,riverPoints,1.32,dirtMat,.017);
-  const water=new THREE.MeshStandardMaterial({color:0x1e556c,roughness:.18,metalness:.48,transparent:true,opacity:.92,side:THREE.DoubleSide});
+  ribbon(scene,riverPoints,1.40,dirtMat,.017);
+  ribbon(scene,riverPoints,1.18,new THREE.MeshBasicMaterial({color:0x45a4a7,transparent:true,opacity:.24,side:THREE.DoubleSide,depthWrite:false}),.020);
+  const water=new THREE.MeshStandardMaterial({color:0x17495a,roughness:.25,metalness:.30,transparent:true,opacity:.92,side:THREE.DoubleSide});
   const waterTime={value:0};water.onBeforeCompile=shader=>{shader.uniforms.riftTime=waterTime;shader.vertexShader='uniform float riftTime;\n'+shader.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\ntransformed.y += sin(position.x * 5.0 + riftTime * 1.2) * 0.007 + cos(position.z * 4.0 - riftTime) * 0.008;');};
   ribbon(scene,riverPoints,1.05,water,.022);
+  const flowers=new THREE.InstancedMesh(new THREE.ConeGeometry(.11,.43,5),new THREE.MeshStandardMaterial({color:0x7956a3,roughness:.72}),100),flower=new THREE.Object3D();for(let i=0;i<100;i++){const y=rand()*950+25,x=680+y*.16+(i%2?1:-1)*(70+rand()*12);flower.position.copy(at(x,y,.16));flower.rotation.set((rand()-.5)*.5,rand()*6,(rand()-.5)*.5);flower.scale.setScalar(.55+rand()*.7);flower.updateMatrix();flowers.setMatrixAt(i,flower.matrix);}scene.add(flowers);
   // Camps are separate dirt clearings, with enough room to fight around the guardian.
   for(const [x,y,r]of [[640,330,1.1],[860,670,1.1],[750,500,1.35]]){const camp=add(scene,new THREE.CircleGeometry(r,48),dirtMat,x*S,.025,y*S);camp.rotation.x=-Math.PI/2;camp.castShadow=false;for(let i=0;i<8;i++){const a=i/8*Math.PI*2,rock=add(scene,new THREE.DodecahedronGeometry(.1+rand()*.08,0),stone,x*S+Math.cos(a)*r,.11,y*S+Math.sin(a)*r);rock.scale.y=.6;}}
   for(const o of obstacles){const r=o.radius*S;for(let i=0;i<5;i++){const a=i/5*Math.PI*2,rock=add(scene,new THREE.DodecahedronGeometry(r*.52,1),stone,o.x*S+Math.cos(a)*r*.35,.25+rand()*.08,o.y*S+Math.sin(a)*r*.35);rock.scale.set(1,.65+rand()*.3,.75);rock.rotation.set(rand()*.4,rand()*6,rand()*.2);}const top=add(scene,new THREE.DodecahedronGeometry(r*.54,0),stone,o.x*S,.55,o.y*S);top.scale.set(1,.5,.8);}
